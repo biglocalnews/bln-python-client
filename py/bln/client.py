@@ -98,6 +98,14 @@ class Client:
         edges = res['effectiveProjectRoles']
         return [(e['role'], e['project']) for e in edges]
 
+    def get_project_roles(self):
+        '''Returns [{'role': ..., 'project': ... }, ...] or None if error.'''
+        res, err = _gql(self.endpoint, self.token, q.query_project_roles)
+        if err:
+            return perr(err)
+        edges = res['projectRoles']
+        return [(e['role'], e['project']) for e in edges]
+
     def get_group_roles(self):
         '''Returns [{'role': ..., 'group': ... }, ...] or None if error.'''
         res, err = _gql(self.endpoint, self.token, q.query_group_roles)

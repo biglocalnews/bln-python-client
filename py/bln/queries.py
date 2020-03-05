@@ -161,6 +161,25 @@ query {{
 }}
 '''
 
+query_project_roles = f'''
+query {{
+    user {{
+        id
+        projectRoles {{
+            edges {{
+                node {{
+                    id
+                    role
+                    project {{
+                        {data_project}
+                    }}
+                }}
+            }}
+        }}
+    }}
+}}
+'''
+
 query_group_roles = f'''
 query {{
     user {{
