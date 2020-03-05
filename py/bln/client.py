@@ -38,7 +38,7 @@ class Client:
             filename: the name of a file in the project.
 
         Returns:
-            uri: a download link.
+            uri: a download link or None if error.
         '''
         uri, err = _get_download_uri(self.endpoint, self.token, projectId,
                                      filename)
@@ -55,7 +55,7 @@ class Client:
             output_dir: uses current working directory if not specified.
 
         Returns:
-            ouput_path: location where file was saved.
+            ouput_path: location where file was saved or None if error.
         '''
         if not output_dir:
             output_dir = os.getcwd()
@@ -64,7 +64,8 @@ class Client:
         if err:
             return perr(err)
         with requests.get(uri, stream=True) as r:
-            r.raise_for_status()
+            if r.status_code != requests.codes.ok:
+                return perr(responses[r.status_code])
             output_path = os.path.join(output_dir, filename)
             with open(output_path, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
@@ -80,7 +81,7 @@ class Client:
             filename: the name of a file in the project.
 
         Returns:
-            uri: an upload link.
+            uri: an upload link or None if error.
         '''
         uri, err = _get_upload_uri(self.endpoint, self.token, projectId,
                                    filename)
@@ -89,14 +90,19 @@ class Client:
         return uri
 
     def get_effective_project_roles(self):
-        '''Returns list of (role, project) tuples for the current user.'''
-        res = _gql(self.endpoint, self.token, q.query_effective_project_roles)
+        '''Returns list of (role, project) tuples or None if error.'''
+        res, err = _gql(self.endpoint, self.token,
+                        q.query_effective_project_roles)
+        if err:
+            return perr(err)
         edges = res['data']['user']['effectiveProjectRoles']['edges']
         return [(node['role'], node['project']) for node in edges]
 
     def get_group_roles(self):
-        '''Returns list of (role, group) tuples for the current user.'''
-        res = _gql(self.endpoint, self.token, q.group_roles)
+        '''Returns list of (role, group) tuples or None if error.'''
+        res, err = _gql(self.endpoint, self.token, q.query_group_roles)
+        if err:
+            return perr(err)
         edges = res['data']['user']['groupRoles']['edges']
         return [(node['role'], node['group']) for node in edges]
 
@@ -155,7 +161,7 @@ class Client:
             files: list of files locally to upload.
 
         Returns:
-            project: the resulting project.
+            project: the resulting project or None if error.
         '''
         return self._upsert_project(
             name,
@@ -196,7 +202,10 @@ class Client:
             key = 'updateProject'
             query = q.mutation_update_project
             variables['id'] = id
-        data = _gql(self.endpoint, self.token, query, variables)['data'][key]
+        res, err = _gql(self.endpoint, self.token, query, variables)
+        if err:
+            return perr(err)
+        data = res['data'][key]
         if data['err']:
             return perr(data['err'])
         projectId = data['ok']['id']
@@ -204,7 +213,10 @@ class Client:
             args = [(self.endpoint, self.token, projectId, f) for f in files]
             p.starmap(_upload, args)
         perr('Done.')
-        return self.get_project(projectId)
+        project, err = self.get_project(projectId)
+        if err:
+            return perr(err)
+        return project
 
     def update_project(
         self,
@@ -235,6 +247,8 @@ class Client:
             project: the resulting project.
         '''
         project = self.get_project(id)
+        if not project:
+            return
         if name:
             project['name'] = name
         if contactMethod:
@@ -260,13 +274,19 @@ class Client:
         )
 
     def get_project(self, id):
-        '''Fetches a project by id.'''
-        return self._get_node(id)
+        '''Returns a project or None if error.'''
+        data, err = self._get_node(id)
+        if err:
+            return perr(err)
+        return data
 
     def _get_node(self, id):
-        return _gql(self.endpoint, self.token, q.query_node, {
+        res, err = _gql(self.endpoint, self.token, q.query_node, {
             'id': id,
-        })['data']
+        })
+        if err:
+            return None, err
+        return res['data'], None
 
     def create_group(
         self,
@@ -287,7 +307,7 @@ class Client:
             userRoles: list who is an admin, editor, and viewer.
 
         Returns:
-            group: the resulting group.
+            group: the resulting group or None if error.
         '''
         return self._upsert_group(
             self,
@@ -349,7 +369,9 @@ class Client:
         Returns:
             group: the resulting group.
         '''
-        group = self.get_node(id)
+        group = self.get_group(id)
+        if not group:
+            return
         if name:
             group['name'] = name
         if contactMethod:
@@ -371,8 +393,11 @@ class Client:
         )
 
     def get_group(self, id):
-        '''Fetches a group by id.'''
-        return self._get_node(id)
+        '''Returns a group or None if error.'''
+        data, err = self._get_node(id)
+        if err:
+            return perr(err)
+        return data
 
 
 def _upload(endpoint, token, projectId, path):
@@ -413,9 +438,10 @@ def _gql(
         'operation_name': operation_name,
     }
     headers = {'Authorization': f'JWT {token}'}
-    response = requests.post(endpoint, json=data, headers=headers)
-    response.raise_for_status()
-    return response.json()
+    res = requests.post(endpoint, json=data, headers=headers)
+    if res.status_code != requests.codes.ok:
+        return None, responses[res.status_code]
+    return res.json(), None
 
 
 def _put(path, uri):
@@ -430,10 +456,13 @@ def _put(path, uri):
 
 
 def _get_download_uri(endpoint, token, projectId, filename):
-    data = _gql(endpoint, token, q.mutation_create_file_download_uri, {
+    res, err = _gql(endpoint, token, q.mutation_create_file_download_uri, {
         'projectId': projectId,
         'fileName': filename
-    })['data']['createFileDownloadUri']
+    })
+    if err:
+        return perr(err)
+    data = res['data']['createFileDownloadUri']
     if data['err']:
         return None, data['err']
     return data['ok'], None
