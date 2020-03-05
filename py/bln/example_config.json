@@ -1,0 +1,56 @@
+{
+  "groups": [
+    {
+      "name": "test_group_1",
+      "contactMethod": "EMAIL",
+      "contact": "a@b.com",
+      "description": "test group 1",
+      "userRoles": {
+        "admin": ["bln"],
+        "member": []
+      }
+    }
+  ],
+  "projects": [
+    {
+      "name": "test_project_1",
+      "contactMethod": "EMAIL",
+      "contact": "a@b.com",
+      "description": "a test project",
+      "isOpen": false,
+      "userRoles": {
+        "admin": ["bln"],
+        "editor": [],
+        "viewer": []
+      },
+      "groupRoles": {
+        "admin": [],
+        "editor": ["test_group_1"],
+        "viewer": []
+      },
+      "files": [
+        "test_projects.json"
+      ]
+    },
+    {
+      "name": "test_project_2",
+      "contactMethod": "PHONE",
+      "contact": "+1 (650) 777-8888",
+      "description": "another test project",
+      "isOpen": true,
+      "userRoles": {
+        "admin": ["bln"],
+        "editor": [],
+        "viewer": []
+      },
+      "groupRoles": {
+        "admin": [],
+        "editor": [],
+        "viewer": ["test_group_1"]
+      },
+      "files": [
+        "client.py"
+      ]
+    }
+  ]
+}
