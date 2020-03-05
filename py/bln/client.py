@@ -8,7 +8,7 @@ import os
 import sys
 
 import requests
-import queries as q
+from . import queries as q
 
 
 class Client:
@@ -21,7 +21,7 @@ class Client:
             tier: only 'prod' will work for external developers.
 
         Returns:
-            client: a Big Local news client.
+            client: a Big Local News Python Client.
         '''
         self.token = token
         self.endpoint = {
