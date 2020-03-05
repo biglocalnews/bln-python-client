@@ -90,21 +90,21 @@ class Client:
         return uri
 
     def get_effective_project_roles(self):
-        '''Returns list of (role, project) tuples or None if error.'''
+        '''Returns [{'role': ..., 'project': ... }, ...] or None if error.'''
         res, err = _gql(self.endpoint, self.token,
                         q.query_effective_project_roles)
         if err:
             return perr(err)
-        edges = res['data']['user']['effectiveProjectRoles']['edges']
-        return [(node['role'], node['project']) for node in edges]
+        edges = res['effectiveProjectRoles']
+        return [(e['role'], e['project']) for e in edges]
 
     def get_group_roles(self):
-        '''Returns list of (role, group) tuples or None if error.'''
+        '''Returns [{'role': ..., 'group': ... }, ...] or None if error.'''
         res, err = _gql(self.endpoint, self.token, q.query_group_roles)
         if err:
             return perr(err)
-        edges = res['data']['user']['groupRoles']['edges']
-        return [(node['role'], node['group']) for node in edges]
+        edges = res['groupRoles']
+        return [(e['role'], e['group']) for e in edges]
 
     def upload_from_json(self, json_path):
         '''Uploads groups and projects from a json config.
@@ -205,7 +205,7 @@ class Client:
         res, err = _gql(self.endpoint, self.token, query, variables)
         if err:
             return perr(err)
-        data = res['data'][key]
+        data = res[key]
         if data['err']:
             return perr(data['err'])
         projectId = data['ok']['id']
@@ -404,10 +404,10 @@ def _upload(endpoint, token, projectId, path):
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         return perr(f'invalid path: {path}')
-    upload_data, err = _get_upload_uri(endpoint, token, projectId, path)
+    upload, err = _get_upload_uri(endpoint, token, projectId, path)
     if err:
         return err
-    err = _put(path, upload_data['uri'])
+    err = _put(path, upload['uri'])
     if err:
         return err
 
@@ -417,7 +417,7 @@ def _get_upload_uri(endpoint, token, projectId, path):
     data = _gql(endpoint, token, q.mutation_create_file_upload_uri, {
         'projectId': projectId,
         'fileName': fname
-    })['data']['createFileUploadUri']
+    })['createFileUploadUri']
     if data['err']:
         return None, data['err']
     return data['ok'], None
@@ -441,7 +441,27 @@ def _gql(
     res = requests.post(endpoint, json=data, headers=headers)
     if res.status_code != requests.codes.ok:
         return None, responses[res.status_code]
-    return res.json(), None
+    print(res.json())
+    return _ungraphql(res.json()), None
+
+
+def _ungraphql(root):
+    if isinstance(root, dict) and 'data' in root:
+        return _ungraphql(root['data'])
+    if isinstance(root, dict) and 'user' in root:
+        return _ungraphql(root['user'])
+    if isinstance(root, dict) and 'node' in root:
+        return _ungraphql(root['node'])
+    if isinstance(root, dict) and 'edges' in root:
+        return _ungraphql(root['edges'])
+    if isinstance(root, dict):
+        d = {}
+        for k, v in root.items():
+            d[k] = _ungraphql(v)
+        return d
+    if isinstance(root, list):
+        return [_ungraphql(item) for item in root]
+    return root
 
 
 def _put(path, uri):
@@ -462,7 +482,7 @@ def _get_download_uri(endpoint, token, projectId, filename):
     })
     if err:
         return perr(err)
-    data = res['data']['createFileDownloadUri']
+    data = res['createFileDownloadUri']
     if data['err']:
         return None, data['err']
     return data['ok'], None
