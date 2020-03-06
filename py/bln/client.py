@@ -7,6 +7,7 @@ import json
 import os
 import sys
 
+import pandas as pd
 import requests
 from . import queries as q
 
@@ -30,114 +31,132 @@ class Client:
             'prod': 'https://api.biglocalnews.org/graphql',
         }[tier]
 
-    def get_download_link(self, projectId, filename):
-        '''Returns download link for `filename` in project `projectId`.
+    def _gql(self, query, variables={}):
+        # remove 'self' so mutations can just pass 'locals()'
+        variables = {k: v for k, v in variables.items() if k != 'self'}
+        data, err = _gql(self.endpoint, self.token, query, variables)
+        # network error
+        if err:
+            return perr(err)
+        for k, v in data.items():
+            # mutation error
+            if 'err' in v:
+                return perr(v['err'])
+            # mutation result
+            if 'ok' in v:
+                return v['ok']
+        # query result
+        return data
+
+    def node(self, id):
+        '''Returns data on the specified node or None if error.'''
+        return self._gql(q.query_node, {'id': id})
+
+    def user(self):
+        '''Returns information about the current user.'''
+        return self._gql(q.query_user)
+
+    def groupRoles(self):
+        '''Returns the current user's group roles and groups.'''
+        return self._gql(q.query_groupRoles)
+
+    def projectRoles(self):
+        '''Returns the current user's project roles and projects.'''
+        return self._gql(q.query_projectRoles)
+
+    def effectiveProjectRoles(self):
+        '''Returns the current user's effective project roles and projects.'''
+        return self._gql(q.query_effectiveProjectRoles)
+
+    def personalTokens(self):
+        '''Returns the current user's personal tokens.'''
+        return self._gql(q.query_personalTokens)
+
+    def oauth2Codes(self):
+        '''Returns the current user's OAuth2 codes (authorized plugins).'''
+        return self._gql(q.query_oauth2Codes)
+
+    def oauth2Tokens(self):
+        '''Returns the current user's OAuth2 tokens (authorized plugins).'''
+        return self._gql(q.query_oauth2Tokens)
+
+    def oauth2Clients(self):
+        '''Returns the current user's owned OAuth2 clients (plugins).'''
+        return self._gql(q.query_oauth2Clients)
+
+    def userNames(self):
+        '''Returns a list of the user names on the platform.'''
+        return self._gql(q.query_userNames)
+
+    def groupNames(self):
+        '''Returns a list of the group names on the platform.'''
+        return self._gql(q.query_groupNames)
+
+    def openProjects(self):
+        '''Returns a list of open projects.'''
+        return self._gql(q.query_openProjects)
+
+    def oauth2ClientsPublic(self):
+        '''Returns a list of Public OAuth2 Clients, i.e. plugins.'''
+        return self._gql(q.query_oauth2ClientsPublic)
+
+    def authorizeOauth2Client(self, id, state):
+        '''Authorize an OAuth2 client by id with state.'''
+        return self._gql(q.mutation_authorizeOauth2Client, locals())
+
+    def authorizeWithPkceOauth2Client(self, id, state, codeChallenge):
+        '''Authorize an OAuth2 client by id with state and code challenge.'''
+        return self._gql(q.mutation_authorizeWithPkceOauth2Client, locals())
+
+    def createFileDownloadUri(self, projectId, fileName):
+        '''Create a file download uri with a projectId and fileName.'''
+        return self._gql(q.mutation_createFileDownloadUri, locals())
+
+    def createFileUploadUri(self, projectId, fileName):
+        '''Create a file upload uri with a projectId and fileName.'''
+        return self._gql(q.mutation_createFileUploadUri, locals())
+
+    def create_group(
+        self,
+        name,
+        contact,
+        contactMethod='EMAIL',
+        description='',
+        userRoles=None,
+    ):
+        '''Creates a group.
 
         Args:
-            projectId: the id of a Big Local News project.
-            filename: the name of a file in the project.
+            id: id of group to update.
+            name: a valid group name.
+            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
+            contactMethod: PHONE or EMAIL.
+            description: a group description.
+            userRoles: list who is an admin, editor, and viewer.
 
         Returns:
-            uri: a download link or None if error.
+            group: the resulting group or None if error.
         '''
-        uri, err = _get_download_uri(self.endpoint, self.token, projectId,
-                                     filename)
-        if err:
-            return perr(err)
-        return uri
+        return self._gql(q.mutation_createGroup, locals())
 
-    def download_to_file(self, projectId, filename, output_dir=None):
-        '''Downloads `filename` in project `projectId` to `output_dir`.
+    def createOauth2Client(
+        self,
+        name,
+        contact,
+        contactMethod='EMAIL',
+        description='',
+        scopes=['project_read', 'project_write'],
+        redirectUris=[],
+        pkceRequired=False,
+    ):
+        '''Creates an OAuth2 Client (plugin).'''
+        return self._gql(q.mutation_createOauth2Client, locals())
 
-        Args:
-            projectId: the id of a Big Local News project.
-            filename: the name of a file in the project.
-            output_dir: uses current working directory if not specified.
+    def createPersonalToken(self):
+        '''Creates a personal token.'''
+        return self._gql(q.mutation_createPersonalToken)
 
-        Returns:
-            ouput_path: location where file was saved or None if error.
-        '''
-        if not output_dir:
-            output_dir = os.getcwd()
-        uri, err = _get_download_uri(self.endpoint, self.token, projectId,
-                                     filename)
-        if err:
-            return perr(err)
-        with requests.get(uri, stream=True) as r:
-            if r.status_code != requests.codes.ok:
-                return perr(responses[r.status_code])
-            output_path = os.path.join(output_dir, filename)
-            with open(output_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    if chunk:  # filter out keep-alive new chunks
-                        f.write(chunk)
-            return output_path
-
-    def get_upload_link(self, projectId, filename):
-        '''Returns upload link for `filename` in project `projectId`.
-
-        Args:
-            projectId: the id of a Big Local News project.
-            filename: the name of a file in the project.
-
-        Returns:
-            uri: an upload link or None if error.
-        '''
-        uri, err = _get_upload_uri(self.endpoint, self.token, projectId,
-                                   filename)
-        if err:
-            return perr(err)
-        return uri
-
-    def get_effective_project_roles(self):
-        '''Returns [{'role': ..., 'project': ... }, ...] or None if error.'''
-        res, err = _gql(self.endpoint, self.token,
-                        q.query_effective_project_roles)
-        if err:
-            return perr(err)
-        edges = res['effectiveProjectRoles']
-        return [(e['role'], e['project']) for e in edges]
-
-    def get_project_roles(self):
-        '''Returns [{'role': ..., 'project': ... }, ...] or None if error.'''
-        res, err = _gql(self.endpoint, self.token, q.query_project_roles)
-        if err:
-            return perr(err)
-        edges = res['projectRoles']
-        return [(e['role'], e['project']) for e in edges]
-
-    def get_group_roles(self):
-        '''Returns [{'role': ..., 'group': ... }, ...] or None if error.'''
-        res, err = _gql(self.endpoint, self.token, q.query_group_roles)
-        if err:
-            return perr(err)
-        edges = res['groupRoles']
-        return [(e['role'], e['group']) for e in edges]
-
-    def upload_from_json(self, json_path):
-        '''Uploads groups and projects from a json config.
-
-        See example_config.json for an example.
-        '''
-        path = os.path.expanduser(json_path)
-        if not os.path.exists(path):
-            return perr(f'invalid json_path: {path}')
-        with open(path) as f:
-            data = json.load(f)
-        if 'groups' in data:
-            for group in data['groups']:
-                if 'id' in group:
-                    self.create_group(**group)
-                else:
-                    self.update_group(**group)
-        if 'projects' in data:
-            for project in data['projects']:
-                if 'id' in project:
-                    self.update_project(**project)
-                else:
-                    self.create_project(**project)
-
-    def create_project(
+    def createProject(
         self,
         name,
         contact,
@@ -171,62 +190,94 @@ class Client:
         Returns:
             project: the resulting project or None if error.
         '''
-        return self._upsert_project(
-            name,
-            contact,
-            contactMethod,
-            description,
-            isOpen,
-            userRoles,
-            groupRoles,
-            files,
-        )
+        project = self._gql(q.mutation_createProject, locals())
+        if not project:
+            return
+        self._upload_files(project['id'], files)
+        return self.node(project['id'])
 
-    def _upsert_project(
-        self,
-        name,
-        contact,
-        contactMethod,
-        description,
-        isOpen,
-        userRoles,
-        groupRoles,
-        files,
-        id=None,
-    ):
-        perr(f'Uploading Project "{name}"...')
-        key = 'createProject'
-        query = q.mutation_create_project
-        variables = {
-            'name': name,
-            'contactMethod': contactMethod,
-            'contact': contact,
-            'description': description,
-            'isOpen': isOpen,
-            'userRoles': userRoles,
-            'groupRoles': groupRoles,
-        }
-        if id:
-            key = 'updateProject'
-            query = q.mutation_update_project
-            variables['id'] = id
-        res, err = _gql(self.endpoint, self.token, query, variables)
-        if err:
-            return perr(err)
-        data = res[key]
-        if data['err']:
-            return perr(data['err'])
-        projectId = data['ok']['id']
+    def _upload_files(self, projectId, files):
         with Pool(cpu_count()) as p:
             args = [(self.endpoint, self.token, projectId, f) for f in files]
-            p.starmap(_upload, args)
-        perr('Done.')
-        project, err = self.get_project(projectId)
-        if err:
-            return perr(err)
-        return project
+            p.starmap(_upload_file, args)
 
-    def update_project(
+    def deleteFile(self, projectId, fileName):
+        '''Deletes `filename` from `projectId`.'''
+        return self._gql(q.mutation_deleteFile, locals())
+
+    def deleteProject(self, projectId):
+        '''Deletes project `projectId`.'''
+        return self._gql(q.mutation_deleteProject, locals())
+
+    def deleteOauth2Client(self, id):
+        '''Deletes OAuth2 Client with id `id`.'''
+        return self._gql(q.mutation_deleteOauth2Client, locals())
+
+    def exchangeOauth2CodeForToken(self, code):
+        '''Exchanges an OAuth2 code for a token.'''
+        return self._gql(q.mutation_exchangeOauth2CodeForToken, locals())
+
+    def exchangeOauth2CodeWithPkceForToken(self, code, codeVerifier):
+        '''Exchanges an OAuth2 code and code verifier for a token.'''
+        return self._gql(q.mutation_exchangeOauth2CodeForToken, locals())
+
+    def revokeOauth2Token(self, token):
+        '''Revokes an OAuth2 token (used by clients).'''
+        return self._gql(q.mutation_revokeOauth2Token, locals())
+
+    def revokePersonalTokens(self, token):
+        '''Revokes a Personal Tokens.'''
+        return self._gql(q.mutation_revokePersonalToken, locals())
+
+    def unauthorizeOauth2Client(self, id):
+        '''Unauthorizes an OAuth2 client by id.'''
+        return self._gql(q.mutation_unauthorizeOauth2Client, locals())
+
+    def update_group(
+        self,
+        id,
+        name=None,
+        contactMethod=None,
+        contact=None,
+        description=None,
+        userRoles=None,
+    ):
+        '''Updates a group.
+
+        Args:
+            id: id of group to update.
+            name: a valid group name.
+            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
+            contactMethod: PHONE or EMAIL.
+            description: a group description.
+            userRoles: list admins and members.
+
+        Returns:
+            group: the resulting group.
+        '''
+        group = self.node(id)
+        d = {k: v for k, v in locals().items() if k != 'self' and v}
+        group.update(d)
+        return self._gql(q.mutation_updateGroup, group)
+
+    def updateOauth2Client(
+        self,
+        id,
+        name=None,
+        contact=None,
+        contactMethod=None,
+        description=None,
+        scopes=None,
+        redirectUris=None,
+        pkceRequired=None,
+    ):
+        '''Creates an OAuth2 Client (plugin).'''
+        client = self.node(id)
+        d = {k: v for k, v in locals().items() if k != 'self' and v}
+        client.update(d)
+        return self._gql(q.mutation_updateOauth2Client, client)
+
+    def updateProject(
         self,
         id,
         name=None,
@@ -254,181 +305,98 @@ class Client:
         Returns:
             project: the resulting project.
         '''
-        project = self.get_project(id)
-        if not project:
-            return
-        if name:
-            project['name'] = name
-        if contactMethod:
-            project['contactMethod'] = contactMethod
-        if contact:
-            project['contact'] = contact
-        if description:
-            project['description'] = description
-        if userRoles:
-            project['userRoles'] = userRoles
-        if groupRoles:
-            project['groupRoles'] = groupRoles
-        return self._upsert_project(
-            name,
-            contact,
-            contactMethod,
-            description,
-            isOpen,
-            userRoles,
-            groupRoles,
-            files,
-            id,
-        )
+        project = self.node(id)
+        d = {k: v for k, v in locals().items() if k != 'self' and v}
+        project.update(d)
+        return self._gql(q.mutation_updateOauth2Client, project)
 
-    def get_project(self, id):
-        '''Returns a project or None if error.'''
-        data, err = self._get_node(id)
-        if err:
-            return perr(err)
-        return data
-
-    def _get_node(self, id):
-        res, err = _gql(self.endpoint, self.token, q.query_node, {
-            'id': id,
-        })
-        if err:
-            return None, err
-        return res['data'], None
-
-    def create_group(
-        self,
-        name,
-        contact,
-        contactMethod='EMAIL',
-        description='',
-        userRoles=None,
-    ):
-        '''Creates a group.
-
-        Args:
-            id: id of group to update.
-            name: a valid group name.
-            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
-            contactMethod: PHONE or EMAIL.
-            description: a group description.
-            userRoles: list who is an admin, editor, and viewer.
-
-        Returns:
-            group: the resulting group or None if error.
-        '''
-        return self._upsert_group(
-            self,
-            name,
-            contactMethod,
-            contact,
-            description,
-            userRoles,
-        )
-
-    def _upsert_group(
-        self,
-        name,
-        contactMethod,
-        contact,
-        description,
-        userRoles,
-        id=None,
-    ):
-        perr(f'Uploading group "{name}"...')
-        key = 'createGroup'
-        query = q.mutation_create_group
-        variables = {
-            'name': name,
-            'contactMethod': contactMethod,
-            'contact': contact,
-            'description': description,
-            'userRoles': userRoles,
-        }
-        if id:
-            key = 'updateGroup'
-            query = q.mutation_update_group
-            variables['id'] = id
-        data = _gql(self.endpoint, self.token, query, variables)['data'][key]
-        if data['err']:
-            return perr(data['err'])
-        perr('Done.')
-        return data['ok']
-
-    def update_group(
+    def updateUser(
         self,
         id,
         name=None,
-        contactMethod=None,
         contact=None,
-        description=None,
-        userRoles=None,
+        contactMethod=None,
     ):
-        '''Updates a group.
+        '''Updates a user.
 
         Args:
-            id: id of group to update.
-            name: a valid group name.
+            id: id of user to update.
+            name: a valid user name.
             contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
             contactMethod: PHONE or EMAIL.
-            description: a group description.
-            userRoles: list admins and members.
 
         Returns:
-            group: the resulting group.
+            user: the resulting user.
         '''
-        group = self.get_group(id)
-        if not group:
+        project = self.get_project(id)
+        d = {k: v for k, v in locals().items() if k != 'self' and v}
+        project.update(d)
+        return self._gql(q.mutation_updateOauth2Client, project)
+
+    # python SDK convenience functions
+
+    def download_to_file(self, projectId, filename, output_dir=None):
+        '''Downloads `filename` in project `projectId` to `output_dir`.
+
+        Args:
+            projectId: the id of a Big Local News project.
+            filename: the name of a file in the project.
+            output_dir: uses current working directory if not specified.
+
+        Returns:
+            ouput_path: location where file was saved or None if error.
+        '''
+        if not output_dir:
+            output_dir = os.getcwd()
+        uri = self.createFileDownloadUri(projectId, filename)
+        if not uri:
             return
-        if name:
-            group['name'] = name
-        if contactMethod:
-            group['contactMethod'] = contactMethod
-        if contact:
-            group['contact'] = contact
-        if description:
-            group['description'] = description
-        if userRoles:
-            group['userRoles'] = userRoles
-        return self._upsert_group(
-            self,
-            name,
-            contactMethod,
-            contact,
-            description,
-            userRoles,
-            id,
-        )
+        with requests.get(uri.uri, stream=True) as r:
+            if r.status_code != requests.codes.ok:
+                return perr(responses[r.status_code])
+            output_path = os.path.join(output_dir, filename)
+            with open(output_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive new chunks
+                        f.write(chunk)
+            return output_path
 
-    def get_group(self, id):
-        '''Returns a group or None if error.'''
-        data, err = self._get_node(id)
-        if err:
-            return perr(err)
-        return data
+    def upload_from_json(self, json_path):
+        '''Uploads groups and projects from a json config.
 
+        See example_config.json for an example.
+        '''
+        path = os.path.expanduser(json_path)
+        if not os.path.exists(path):
+            return perr(f'invalid json_path: {path}')
+        with open(path) as f:
+            data = json.load(f)
+        if 'groups' in data:
+            for group in data['groups']:
+                if 'id' in group:
+                    self.create_group(**group)
+                else:
+                    self.update_group(**group)
+        if 'projects' in data:
+            for project in data['projects']:
+                if 'id' in project:
+                    self.update_project(**project)
+                else:
+                    self.create_project(**project)
 
-def _upload(endpoint, token, projectId, path):
-    path = os.path.expanduser(path)
-    if not os.path.exists(path):
-        return perr(f'invalid path: {path}')
-    upload, err = _get_upload_uri(endpoint, token, projectId, path)
-    if err:
-        return err
-    err = _put(path, upload['uri'])
-    if err:
-        return err
+    def to_pandas_df(self, projectId, filename):
+        '''Returns a pandas dataframe of `filename` in project `projectId`.'''
+        uri = self.createFileDownloadUri(projectId, filename)
+        if not uri:
+            return
+        raise NotImplementedError('Not ready yet!')
 
-
-def _get_upload_uri(endpoint, token, projectId, path):
-    fname = os.path.basename(path)
-    data = _gql(endpoint, token, q.mutation_create_file_upload_uri, {
-        'projectId': projectId,
-        'fileName': fname
-    })['createFileUploadUri']
-    if data['err']:
-        return None, data['err']
-    return data['ok'], None
+    def from_pandas_df(self, df, projectId, filename):
+        '''Uploads a pandas dataframe to project `projectId` as `filename`.'''
+        uri = self.createFileUploadUri(projectId, filename)
+        if not uri:
+            return
+        raise NotImplementedError('Not ready yet!')
 
 
 def _gql(
@@ -449,7 +417,6 @@ def _gql(
     res = requests.post(endpoint, json=data, headers=headers)
     if res.status_code != requests.codes.ok:
         return None, responses[res.status_code]
-    print(res.json())
     return _ungraphql(res.json()), None
 
 
@@ -472,6 +439,29 @@ def _ungraphql(root):
     return root
 
 
+def _upload_file(endpoint, token, projectId, path):
+    path = os.path.expanduser(path)
+    if not os.path.exists(path):
+        return perr(f'invalid path: {path}')
+    uri, err = _get_upload_uri(endpoint, token, projectId, path)
+    if err:
+        return err
+    err = _put(path, uri['uri'])
+    if err:
+        return err
+
+
+def _get_upload_uri(endpoint, token, projectId, path):
+    fname = os.path.basename(path)
+    data = _gql(endpoint, token, q.mutation_createFileUploadUri, {
+        'projectId': projectId,
+        'fileName': fname
+    })['createFileUploadUri']
+    if data['err']:
+        return None, data['err']
+    return data['ok'], None
+
+
 def _put(path, uri):
     headers = {
         'content-type': 'application/octet-stream',
@@ -483,21 +473,8 @@ def _put(path, uri):
             return responses[res.status_code]
 
 
-def _get_download_uri(endpoint, token, projectId, filename):
-    res, err = _gql(endpoint, token, q.mutation_create_file_download_uri, {
-        'projectId': projectId,
-        'fileName': filename
-    })
-    if err:
-        return perr(err)
-    data = res['createFileDownloadUri']
-    if data['err']:
-        return None, data['err']
-    return data['ok'], None
-
-
-def perr(msg):
-    print(msg, file=sys.stderr)
+def perr(msg, end='\n'):
+    print(msg, file=sys.stderr, end=end)
 
 
 def parse_args(argv):
