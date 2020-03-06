@@ -666,7 +666,7 @@ def parse_args(argv):
     parser.add_argument('json_path',
                         help='json config; see example test_projects.json')
     parser.add_argument('token', help='personal token')
-    parser.add_argument('-tier', default='dev', help='tier to send to')
+    parser.add_argument('-tier', default='prod', help='tier to send to')
     return parser.parse_args(argv[1:])
 
 
