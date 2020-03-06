@@ -3,6 +3,7 @@
 from multiprocessing import Pool, cpu_count
 from http.client import responses
 import argparse
+import io
 import json
 import os
 import sys
@@ -51,6 +52,10 @@ class Client:
     def node(self, id):
         '''Returns data on the specified node or None if error.'''
         return self._gql(q.query_node, {'id': id})
+
+    def everything(self):
+        '''Returns all information accessible by the current user.'''
+        return self._gql(q.query_everything)
 
     def user(self):
         '''Returns information about the current user.'''
@@ -116,7 +121,7 @@ class Client:
         '''Create a file upload uri with a projectId and fileName.'''
         return self._gql(q.mutation_createFileUploadUri, locals())
 
-    def create_group(
+    def createGroup(
         self,
         name,
         contact,
@@ -233,7 +238,7 @@ class Client:
         '''Unauthorizes an OAuth2 client by id.'''
         return self._gql(q.mutation_unauthorizeOauth2Client, locals())
 
-    def update_group(
+    def updateGroup(
         self,
         id,
         name=None,
@@ -364,7 +369,7 @@ class Client:
     def upload_from_json(self, json_path):
         '''Uploads groups and projects from a json config.
 
-        See example_config.json for an example.
+        See example_config.json.
         '''
         path = os.path.expanduser(json_path)
         if not os.path.exists(path):
@@ -384,19 +389,38 @@ class Client:
                 else:
                     self.create_project(**project)
 
-    def to_pandas_df(self, projectId, filename):
-        '''Returns a pandas dataframe of `filename` in project `projectId`.'''
+    def file_to_pandas(self, projectId, filename):
+        '''Returns a pandas DataFrame of `filename` in project `projectId`.
+
+        Args:
+            projectId: the id of the project.
+            filename: the remote filename.
+
+        Returns:
+            df: a pandas DataFrame.
+        '''
         uri = self.createFileDownloadUri(projectId, filename)
         if not uri:
             return
-        raise NotImplementedError('Not ready yet!')
+        # sep=None tells pandas to detect the type
+        return pd.read_table(uri, sep=None)
 
-    def from_pandas_df(self, df, projectId, filename):
-        '''Uploads a pandas dataframe to project `projectId` as `filename`.'''
+    def pandas_to_file(self, df, projectId, filename):
+        '''Uploads a pandas DataFrame to project `projectId` as `filename`.
+
+        Args:
+            df: a pandas DataFrame.
+            projectId: the id of the project.
+            filename: a csv filename.
+        '''
+        if os.path.splitext(filename)[1] != 'csv':
+            return perr('Must upload to a file with a csv extension.')
         uri = self.createFileUploadUri(projectId, filename)
         if not uri:
             return
-        raise NotImplementedError('Not ready yet!')
+        buf = io.StringIO()
+        df.to_csv(buf)
+        return _put_buffer(buf, uri)
 
 
 def _gql(
@@ -463,14 +487,18 @@ def _get_upload_uri(endpoint, token, projectId, path):
 
 
 def _put(path, uri):
+    with open(path, 'rb') as f:
+        _put_buffer(f, uri)
+
+
+def _put_buffer(buf, uri):
     headers = {
         'content-type': 'application/octet-stream',
         'host': 'storage.googleapis.com',
     }
-    with open(path, 'rb') as f:
-        res = requests._put(uri, data=f, headers=headers)
-        if res.status_code != requests.codes.ok:
-            return responses[res.status_code]
+    res = requests.put(uri, data=buf, headers=headers)
+    if res.status_code != requests.codes.ok:
+        return responses[res.status_code]
 
 
 def perr(msg, end='\n'):

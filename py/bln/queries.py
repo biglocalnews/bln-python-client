@@ -151,6 +151,78 @@ query Node($id: ID!) {{
 
 '''
 
+query_everything = f'''
+query {{
+    user {{
+        {fragment_user}
+        groupRoles {{
+            edges {{
+                node {{
+                    role
+                    group {{
+                        {fragment_group}
+                    }}
+                }}
+            }}
+        }}
+        projectRoles {{
+            edges {{
+                node {{
+                    role
+                    project {{
+                        {fragment_project}
+                    }}
+                }}
+            }}
+        }}
+        effectiveProjectRoles {{
+            edges {{
+                node {{
+                    role
+                    project {{
+                        {fragment_project}
+                    }}
+                }}
+            }}
+        }}
+        personalTokens {{
+            edges {{
+                node {{
+                    token
+                }}
+            }}
+        }}
+        oauth2Codes {{
+            edges {{
+                node {{
+                    scopes
+                    client {{
+                        {fragment_oauth2_client_public}
+                    }}
+                }}
+            }}
+        }}
+        oauth2Tokens {{
+            edges {{
+                node {{
+                    scopes
+                    client {{
+                        {fragment_oauth2_client_public}
+                    }}
+                }}
+            }}
+        }}
+        oauth2Clients {{
+            edges {{
+                node {{
+                    {fragment_oauth2_client_private}
+                }}
+            }}
+        }}
+    }}
+}}
+'''
+
 query_user = f'''
 query {{
     user {{
