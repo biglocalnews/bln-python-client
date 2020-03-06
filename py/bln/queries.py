@@ -376,7 +376,7 @@ query {{
 
 query_oauth2ClientsPublic = f'''
 query {{
-    oauth2Cients {{
+    oauth2Clients {{
         {fragment_oauth2_client_public}
     }}
 }}

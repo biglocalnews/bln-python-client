@@ -39,13 +39,17 @@ class Client:
         # network error
         if err:
             return perr(err)
-        for k, v in data.items():
-            # mutation error
-            if 'err' in v:
-                return perr(v['err'])
-            # mutation result
-            if 'ok' in v:
-                return v['ok']
+        if isinstance(data, dict):
+            for k, v in data.items():
+                # unwrap single-item dict lists
+                if len(data) == 1 and isinstance(v, list):
+                    return v
+                # mutation error
+                if 'err' in v and v['err']:
+                    return perr(v['err'])
+                # mutation result
+                if 'ok' in v:
+                    return v['ok']
         # query result
         return data
 
@@ -71,7 +75,7 @@ class Client:
 
     def personalTokens(self):
         '''Returns the current user's personal tokens.'''
-        return self._gql(q.query_personalTokens)
+        return [v['token'] for v in self._gql(q.query_personalTokens)]
 
     def oauth2Codes(self):
         '''Returns the current user's OAuth2 codes (authorized plugins).'''
