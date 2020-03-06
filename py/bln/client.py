@@ -153,11 +153,16 @@ class Client:
             contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
             contactMethod: PHONE or EMAIL.
             description: a group description.
-            userRoles: list who is an admin, editor, and viewer.
+            userRoles: list who is an admin and member.
 
         Returns:
             group: the resulting group or None if error.
         '''
+        if not userRoles:
+            user = self.user()
+            if not user:
+                return
+            userRoles = {'admin': [user['name']], 'member': []}
         return self._gql(q.mutation_createGroup, locals())
 
     def createOauth2Client(
@@ -184,16 +189,8 @@ class Client:
         contactMethod='EMAIL',
         description='',
         isOpen=False,
-        userRoles={
-            'admin': [],
-            'editor': [],
-            'viewer': []
-        },
-        groupRoles={
-            'admin': [],
-            'editor': [],
-            'viewer': []
-        },
+        userRoles=None,
+        groupRoles=None,
         files=[],
     ):
         '''Creates a project.
@@ -212,6 +209,13 @@ class Client:
             project: the resulting project or None if error.
         '''
         variables = {k: v for k, v in locals().items() if k != 'files'}
+        if not userRoles:
+            user = self.user()
+            if not user:
+                return
+            userRoles = {'admin': [user['name']], 'editor': [], 'viewer': []}
+        if not groupRoles:
+            groupRoles = {'admin': [], 'editor': [], 'viewer': []}
         project = self._gql(q.mutation_createProject, variables)
         if not project:
             return
@@ -336,7 +340,9 @@ class Client:
             return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
         project.update(d)
-        return self._gql(q.mutation_updateOauth2Client, project)
+        project = self._gql(q.mutation_updateProject, project)
+        self._upload_files(project['id'], files)
+        return self._gql(q.query_project, {'id': project['id']})
 
     def updateUser(
         self,
@@ -399,6 +405,7 @@ class Client:
 
         See example_config.json.
         '''
+        # TODO(danj): fix this
         path = os.path.expanduser(json_path)
         if not os.path.exists(path):
             return perr(f'invalid json_path: {path}')
@@ -416,6 +423,16 @@ class Client:
                     self.updateProject(**project)
                 else:
                     self.createProject(**project)
+
+    def upload_file(self, projectId, path):
+        '''Upload a file locally to a project.
+
+        Args:
+            projectId: the id of the project.
+            path: the path of the file to upload.
+        '''
+        # TODO(danj): fix this
+        return _upload_file(self.endpoint, self.token, projectId, path)
 
     def file_to_pandas(self, projectId, fileName):
         '''Returns a pandas DataFrame of `fileName` in project `projectId`.
@@ -589,23 +606,25 @@ def _ungraphql(root):
 
 
 def _upload_file(endpoint, token, projectId, path):
+    perr(f'uploading {path}')
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         return perr(f'invalid path: {path}')
     uri, err = _get_upload_uri(endpoint, token, projectId, path)
     if err:
-        return err
+        return perr(err)
     err = _put(path, uri['uri'])
     if err:
-        return err
+        return perr(err)
+    perr(f'finished uploading {path}')
 
 
 def _get_upload_uri(endpoint, token, projectId, path):
     fname = os.path.basename(path)
     data = _gql(endpoint, token, q.mutation_createFileUploadUri, {
         'projectId': projectId,
-        'fileName': fname
-    })['createFileUploadUri']
+        'fileName': fname,
+    })
     if data['err']:
         return None, data['err']
     return data['ok'], None
