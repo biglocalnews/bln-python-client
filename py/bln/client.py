@@ -149,7 +149,6 @@ class Client:
         '''Creates a group.
 
         Args:
-            id: id of group to update.
             name: a valid group name.
             contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
             contactMethod: PHONE or EMAIL.
