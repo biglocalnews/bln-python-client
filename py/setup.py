@@ -24,5 +24,6 @@ setuptools.setup(
     install_requires=[
         'requests',
         'pandas',
+        'xlrd',
     ],
 )

@@ -220,9 +220,6 @@ query Node($id: ID!) {{
         ... on Project {{
             {fragment_project}
         }}
-        ... on OAuth2Client {{
-            {fragment_oauth2_client_public}
-        }}
     }}
 }}
 '''

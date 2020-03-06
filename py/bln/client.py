@@ -3,9 +3,9 @@
 from multiprocessing import Pool, cpu_count
 from http.client import responses
 import argparse
-import io
 import json
 import os
+import re
 import sys
 
 import pandas as pd
@@ -44,12 +44,13 @@ class Client:
                 # unwrap single-item dict lists
                 if len(data) == 1 and isinstance(v, list):
                     return v
-                # mutation error
-                if 'err' in v and v['err']:
-                    return perr(v['err'])
-                # mutation result
-                if 'ok' in v:
-                    return v['ok']
+                if isinstance(v, dict):
+                    # mutation error
+                    if 'err' in v and v['err']:
+                        return perr(v['err'])
+                    # mutation result
+                    if 'ok' in v:
+                        return v['ok']
         # query result
         return data
 
@@ -195,11 +196,12 @@ class Client:
         Returns:
             project: the resulting project or None if error.
         '''
-        project = self._gql(q.mutation_createProject, locals())
+        variables = {k: v for k, v in locals().items() if k != 'files'}
+        project = self._gql(q.mutation_createProject, variables)
         if not project:
             return
         self._upload_files(project['id'], files)
-        return self._gql(q.query_project, project['id'])
+        return self._gql(q.query_project, {'id': project['id']})
 
     def _upload_files(self, projectId, files):
         with Pool(cpu_count()) as p:
@@ -210,7 +212,7 @@ class Client:
         '''Deletes `filename` from `projectId`.'''
         return self._gql(q.mutation_deleteFile, locals())
 
-    def deleteProject(self, projectId):
+    def deleteProject(self, id):
         '''Deletes project `projectId`.'''
         return self._gql(q.mutation_deleteProject, locals())
 
@@ -260,7 +262,7 @@ class Client:
         Returns:
             group: the resulting group.
         '''
-        group = self._gql(q.query_group, id)
+        group = self._gql(q.query_group, {'id': id})
         if not group:
             return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
@@ -279,7 +281,7 @@ class Client:
         pkceRequired=None,
     ):
         '''Creates an OAuth2 Client (plugin).'''
-        client = self._gql(q.query_oauth2Client, id)
+        client = self._gql(q.query_oauth2Client, {'id': id})
         if not client:
             return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
@@ -314,7 +316,7 @@ class Client:
         Returns:
             project: the resulting project.
         '''
-        project = self._gql(q.query_project, id)
+        project = self._gql(q.query_project, {'id': id})
         if not project:
             return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
@@ -350,7 +352,7 @@ class Client:
 
     # python SDK convenience functions
 
-    def download_to_file(self, projectId, filename, output_dir=None):
+    def download_file(self, projectId, filename, output_dir=None):
         '''Downloads `filename` in project `projectId` to `output_dir`.
 
         Args:
@@ -366,7 +368,7 @@ class Client:
         uri = self.createFileDownloadUri(projectId, filename)
         if not uri:
             return
-        with requests.get(uri.uri, stream=True) as r:
+        with requests.get(uri['uri'], stream=True) as r:
             if r.status_code != requests.codes.ok:
                 return perr(responses[r.status_code])
             output_path = os.path.join(output_dir, filename)
@@ -399,38 +401,63 @@ class Client:
                 else:
                     self.create_project(**project)
 
-    def file_to_pandas(self, projectId, filename):
-        '''Returns a pandas DataFrame of `filename` in project `projectId`.
+    def file_to_pandas(self, projectId, fileName):
+        '''Returns a pandas DataFrame of `fileName` in project `projectId`.
 
         Args:
             projectId: the id of the project.
-            filename: the remote filename.
+            fileName: the remote file name.
 
         Returns:
             df: a pandas DataFrame.
         '''
-        uri = self.createFileDownloadUri(projectId, filename)
+        uri = self.createFileDownloadUri(projectId, fileName)
         if not uri:
             return
-        # sep=None tells pandas to detect the type
-        return pd.read_table(uri, sep=None)
+        return self._uri_to_pandas(uri)
 
-    def pandas_to_file(self, df, projectId, filename):
-        '''Uploads a pandas DataFrame to project `projectId` as `filename`.
+    def _uri_to_pands(self, uri):
+        if _is_excel(uri['name']):
+            return pd.read_excel(uri['uri'])
+        # sep=None and engine='python' tells pandas to detect the type
+        return pd.read_table(uri['uri'], sep=None, engine='python')
+
+    def regex_to_pandas(self, fileNameRegex='.*', projectNameRegex='.*'):
+        '''Returns matching project/file name regex to pandas DataFrame.
+
+        Args:
+            fileNameRegex: (optional) regex for the file name.
+            projectNameRegex: (optional) regex for the project name.
+
+        Returns:
+            df: a pandas DataFrame.
+        '''
+        re_project = re.compile(projectNameRegex)
+        re_filename = re.compile(fileNameRegex)
+        uris = []
+        for v in self.effectiveProjectRoles():
+            if re_project.match(v['project']['name']):
+                for uri in v['project']['files']:
+                    if re_filename.match(uri['name']):
+                        uris.append(uri)
+        idx = _select_idx([uri['name'] for uri in uris])
+        uri = dict(enumerate(uris))[idx]
+        return self._uri_to_pands(uri)
+
+    def pandas_to_file(self, df, projectId, fileName):
+        '''Uploads a pandas DataFrame to project `projectId` as `fileName`.
 
         Args:
             df: a pandas DataFrame.
             projectId: the id of the project.
-            filename: a csv filename.
+            fileName: the remote filename.
         '''
-        if os.path.splitext(filename)[1] != 'csv':
+        if os.path.splitext(fileName)[1] != '.csv':
             return perr('Must upload to a file with a csv extension.')
-        uri = self.createFileUploadUri(projectId, filename)
+        uri = self.createFileUploadUri(projectId, fileName)
         if not uri:
             return
-        buf = io.StringIO()
-        df.to_csv(buf)
-        return _put_buffer(buf, uri)
+        return _put_string(df.to_string(), uri['uri'])
 
 
 def _gql(
@@ -447,6 +474,9 @@ def _gql(
         },
         'operation_name': operation_name,
     }
+    # special case: node query, which doesn't use an *Input type
+    if len(variables) == 1 and 'id' in variables:
+        data['variables'] = variables
     headers = {'Authorization': f'JWT {token}'}
     res = requests.post(endpoint, json=data, headers=headers)
     if res.status_code != requests.codes.ok:
@@ -497,18 +527,45 @@ def _get_upload_uri(endpoint, token, projectId, path):
 
 
 def _put(path, uri):
-    with open(path, 'rb') as f:
-        _put_buffer(f, uri)
-
-
-def _put_buffer(buf, uri):
     headers = {
         'content-type': 'application/octet-stream',
         'host': 'storage.googleapis.com',
     }
-    res = requests.put(uri, data=buf, headers=headers)
+    with open(path, 'rb') as f:
+        res = requests.put(uri, data=f, headers=headers)
+        if res.status_code != requests.codes.ok:
+            return responses[res.status_code]
+
+
+def _put_string(string, uri):
+    headers = {
+        'content-type': 'application/octet-stream',
+        'host': 'storage.googleapis.com',
+    }
+    res = requests.put(uri, data=string.encode('utf-8'), headers=headers)
     if res.status_code != requests.codes.ok:
         return responses[res.status_code]
+
+
+def _is_excel(filename):
+    return os.path.splitext(filename)[1] in ['.xls', '.xlsx']
+
+
+def _select_idx(options):
+    for idx, option in enumerate(options):
+        print(f'{idx}: {option}')
+    msg = 'Select index: '
+    idx = _to_idx(input(msg))
+    while idx < 0 or idx >= len(options):
+        idx = _to_idx(input(msg))
+    return idx
+
+
+def _to_idx(s):
+    try:
+        return int(s)
+    except Exception:
+        return -1
 
 
 def perr(msg, end='\n'):
