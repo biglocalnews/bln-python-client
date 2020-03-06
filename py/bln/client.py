@@ -407,15 +407,15 @@ class Client:
         if 'groups' in data:
             for group in data['groups']:
                 if 'id' in group:
-                    self.create_group(**group)
+                    self.createGroup(**group)
                 else:
-                    self.update_group(**group)
+                    self.updateGroup(**group)
         if 'projects' in data:
             for project in data['projects']:
                 if 'id' in project:
-                    self.update_project(**project)
+                    self.updateProject(**project)
                 else:
-                    self.create_project(**project)
+                    self.createProject(**project)
 
     def file_to_pandas(self, projectId, fileName):
         '''Returns a pandas DataFrame of `fileName` in project `projectId`.
