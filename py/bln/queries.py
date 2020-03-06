@@ -4,14 +4,7 @@ id
 name
 displayName
 contactMethod
-contactMethod
-'''
-
-fragment_user_public = '''
-id
-name
-contactMethod
-contactMethod
+contact
 '''
 
 fragment_group = f'''
@@ -26,7 +19,7 @@ userRoles {{
     node {{
       role
       user {{
-        {fragment_user_public}
+        {fragment_user}
       }}
     }}
   }}
@@ -40,7 +33,7 @@ contactMethod
 contact
 '''
 
-fragment_project = '''
+fragment_project = f'''
 id
 updatedAt
 name
@@ -53,7 +46,7 @@ userRoles {{
     node {{
       role
       user {{
-        {fragment_user_public}
+        {fragment_user}
       }}
     }}
   }}
@@ -73,7 +66,7 @@ effectiveUserRoles {{
     node {{
       role
       user {{
-        {fragment_user_public}
+        {fragment_user}
       }}
     }}
   }}
@@ -81,11 +74,12 @@ effectiveUserRoles {{
 files {{
   name
   uri
+  uriType
   updatedAt
 }}
 '''
 
-fragment_oauth2_client_public = '''
+fragment_oauth2_client_public = f'''
 id
 name
 contactMethod
@@ -93,7 +87,7 @@ contact
 description
 scopes
 author {{
-    {fragment_user_public}
+    {fragment_user}
 }}
 '''
 
@@ -111,7 +105,7 @@ oauth2Codes {{
             challenge
             scopes
             user {{
-                {fragment_user_public}
+                {fragment_user}
             }}
         }}
     }}
@@ -122,7 +116,7 @@ oauth2Tokens {{
             token
             scopes
             user {{
-                {fragment_user_public}
+                {fragment_user}
             }}
         }}
     }}
@@ -130,26 +124,6 @@ oauth2Tokens {{
 '''
 
 # QUERIES
-
-query_node = f'''
-query Node($id: ID!) {{
-    node(id: $id) {{
-        ... on User {{
-            {fragment_user}
-        }}
-        ... on Group {{
-            {fragment_group}
-        }}
-        ... on Project {{
-            {fragment_project}
-        }}
-        ... on OAuth2Client {{
-            {fragment_oauth2_client_public}
-        }}
-    }}
-}}
-
-'''
 
 query_everything = f'''
 query {{
@@ -227,6 +201,38 @@ query_user = f'''
 query {{
     user {{
         {fragment_user}
+    }}
+}}
+'''
+
+query_group = f'''
+query Node($id: ID!) {{
+    node(id: $id) {{
+        ... on Group {{
+            {fragment_group}
+    }}
+}}
+'''
+
+query_project = f'''
+query Node($id: ID!) {{
+    node(id: $id) {{
+        ... on Project {{
+            {fragment_project}
+        }}
+        ... on OAuth2Client {{
+            {fragment_oauth2_client_public}
+        }}
+    }}
+}}
+'''
+
+query_oauth2Client = f'''
+query Node($id: ID!) {{
+    node(id: $id) {{
+        ... on OAuth2Client {{
+            {fragment_oauth2_client_public}
+        }}
     }}
 }}
 '''

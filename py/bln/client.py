@@ -49,10 +49,6 @@ class Client:
         # query result
         return data
 
-    def node(self, id):
-        '''Returns data on the specified node or None if error.'''
-        return self._gql(q.query_node, {'id': id})
-
     def everything(self):
         '''Returns all information accessible by the current user.'''
         return self._gql(q.query_everything)
@@ -199,7 +195,7 @@ class Client:
         if not project:
             return
         self._upload_files(project['id'], files)
-        return self.node(project['id'])
+        return self._gql(q.query_project, project['id'])
 
     def _upload_files(self, projectId, files):
         with Pool(cpu_count()) as p:
@@ -260,7 +256,9 @@ class Client:
         Returns:
             group: the resulting group.
         '''
-        group = self.node(id)
+        group = self._gql(q.query_group, id)
+        if not group:
+            return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
         group.update(d)
         return self._gql(q.mutation_updateGroup, group)
@@ -277,7 +275,9 @@ class Client:
         pkceRequired=None,
     ):
         '''Creates an OAuth2 Client (plugin).'''
-        client = self.node(id)
+        client = self._gql(q.query_oauth2Client, id)
+        if not client:
+            return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
         client.update(d)
         return self._gql(q.mutation_updateOauth2Client, client)
@@ -310,7 +310,9 @@ class Client:
         Returns:
             project: the resulting project.
         '''
-        project = self.node(id)
+        project = self._gql(q.query_project, id)
+        if not project:
+            return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
         project.update(d)
         return self._gql(q.mutation_updateOauth2Client, project)
@@ -319,6 +321,7 @@ class Client:
         self,
         id,
         name=None,
+        displayName=None,
         contact=None,
         contactMethod=None,
     ):
@@ -327,16 +330,19 @@ class Client:
         Args:
             id: id of user to update.
             name: a valid user name.
+            displayName: display name of user.
             contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
             contactMethod: PHONE or EMAIL.
 
         Returns:
             user: the resulting user.
         '''
-        project = self.get_project(id)
+        user = self._gql(q.query_user, id)
+        if not user:
+            return
         d = {k: v for k, v in locals().items() if k != 'self' and v}
-        project.update(d)
-        return self._gql(q.mutation_updateOauth2Client, project)
+        user.update(d)
+        return self._gql(q.mutation_updateOauth2Client, user)
 
     # python SDK convenience functions
 
