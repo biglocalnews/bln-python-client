@@ -15,14 +15,15 @@ contactMethod
 contact
 description
 userRoles {{
-  edges {{
-    node {{
-      role
-      user {{
-        {fragment_user}
-      }}
+    edges {{
+        node {{
+            id
+            role
+            user {{
+                {fragment_user}
+            }}
+        }}
     }}
-  }}
 }}
 '''
 
@@ -31,6 +32,14 @@ id
 name
 contactMethod
 contact
+'''
+
+fragment_file = '''
+name
+uri
+uriType
+createdAt
+updatedAt
 '''
 
 fragment_project = f'''
@@ -42,40 +51,40 @@ contact
 description
 isOpen
 userRoles {{
-  edges {{
-    node {{
-      role
-      user {{
-        {fragment_user}
-      }}
+    edges {{
+        node {{
+            id
+            role
+            user {{
+                {fragment_user}
+            }}
+        }}
     }}
-  }}
 }}
 groupRoles {{
-  edges {{
-    node {{
-      role
-      group {{
-        {fragment_group_public}
-      }}
+    edges {{
+        node {{
+            id
+            role
+            group {{
+                {fragment_group_public}
+            }}
+        }}
     }}
-  }}
 }}
 effectiveUserRoles {{
-  edges {{
-    node {{
-      role
-      user {{
-        {fragment_user}
-      }}
+    edges {{
+        node {{
+            id
+            role
+            user {{
+                {fragment_user}
+            }}
+        }}
     }}
-  }}
 }}
 files {{
-  name
-  uri
-  uriType
-  updatedAt
+    {fragment_file}
 }}
 '''
 
@@ -101,6 +110,7 @@ defaultRedirectUri
 oauth2Codes {{
     edges {{
         node {{
+            id
             code
             challenge
             scopes
@@ -113,6 +123,7 @@ oauth2Codes {{
 oauth2Tokens {{
     edges {{
         node {{
+            id
             token
             scopes
             user {{
@@ -132,6 +143,7 @@ query {{
         groupRoles {{
             edges {{
                 node {{
+                    id
                     role
                     group {{
                         {fragment_group}
@@ -142,6 +154,7 @@ query {{
         projectRoles {{
             edges {{
                 node {{
+                    id
                     role
                     project {{
                         {fragment_project}
@@ -152,6 +165,7 @@ query {{
         effectiveProjectRoles {{
             edges {{
                 node {{
+                    id
                     role
                     project {{
                         {fragment_project}
@@ -162,6 +176,7 @@ query {{
         personalTokens {{
             edges {{
                 node {{
+                    id
                     token
                 }}
             }}
@@ -169,6 +184,9 @@ query {{
         oauth2Codes {{
             edges {{
                 node {{
+                    id
+                    code
+                    expiresAt
                     scopes
                     client {{
                         {fragment_oauth2_client_public}
@@ -179,6 +197,8 @@ query {{
         oauth2Tokens {{
             edges {{
                 node {{
+                    id
+                    token
                     scopes
                     client {{
                         {fragment_oauth2_client_public}
@@ -228,6 +248,16 @@ query_oauth2Client = f'''
 query Node($id: ID!) {{
     node(id: $id) {{
         ... on OAuth2Client {{
+            {fragment_oauth2_client_private}
+        }}
+    }}
+}}
+'''
+
+query_oauth2ClientPublic = f'''
+query Node($id: ID!) {{
+    node(id: $id) {{
+        ... on OAuth2Client {{
             {fragment_oauth2_client_public}
         }}
     }}
@@ -237,9 +267,11 @@ query Node($id: ID!) {{
 query_groupRoles = f'''
 query {{
     user {{
+        id
         groupRoles {{
             edges {{
                 node {{
+                    id
                     role
                     group {{
                         {fragment_group}
@@ -254,9 +286,11 @@ query {{
 query_projectRoles = f'''
 query {{
     user {{
+        id
         projectRoles {{
             edges {{
                 node {{
+                    id
                     role
                     project {{
                         {fragment_project}
@@ -271,9 +305,11 @@ query {{
 query_effectiveProjectRoles = f'''
 query {{
     user {{
+        id
         effectiveProjectRoles {{
             edges {{
                 node {{
+                    id
                     role
                     project {{
                         {fragment_project}
@@ -288,9 +324,11 @@ query {{
 query_personalTokens = '''
 query {
     user {
+        id
         personalTokens {
             edges {
                 node {
+                    id
                     token
                 }
             }
@@ -302,9 +340,13 @@ query {
 query_oauth2Codes = f'''
 query {{
     user {{
+        id
         oauth2Codes {{
             edges {{
                 node {{
+                    id
+                    code
+                    expiresAt
                     scopes
                     client {{
                         {fragment_oauth2_client_public}
@@ -319,9 +361,12 @@ query {{
 query_oauth2Tokens = f'''
 query {{
     user {{
+        id
         oauth2Tokens {{
             edges {{
                 node {{
+                    id
+                    token
                     scopes
                     client {{
                         {fragment_oauth2_client_public}
@@ -336,6 +381,7 @@ query {{
 query_oauth2Clients = f'''
 query {{
     user {{
+        id
         oauth2Clients {{
             edges {{
                 node {{
