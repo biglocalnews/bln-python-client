@@ -219,13 +219,22 @@ class Client:
         project = self._gql(q.mutation_createProject, variables)
         if not project:
             return
-        self._upload_files(project['id'], files)
+        self.upload_files(project['id'], files)
         return self._gql(q.query_project, {'id': project['id']})
 
-    def _upload_files(self, projectId, files):
+    def upload_files(self, projectId, files):
         with Pool(cpu_count()) as p:
             args = [(self.endpoint, self.token, projectId, f) for f in files]
             p.starmap(_upload_file, args)
+
+    def upload_file(self, projectId, path):
+        '''Upload a file locally to a project.
+
+        Args:
+            projectId: the id of the project.
+            path: the path of the file to upload.
+        '''
+        return self.upload_file(projectId, [path])
 
     def deleteFile(self, projectId, fileName):
         '''Deletes `filename` from `projectId`.'''
@@ -341,7 +350,7 @@ class Client:
         d = {k: v for k, v in locals().items() if k != 'self' and v}
         project.update(d)
         project = self._gql(q.mutation_updateProject, project)
-        self._upload_files(project['id'], files)
+        self.upload_files(project['id'], files)
         return self._gql(q.query_project, {'id': project['id']})
 
     def updateUser(
@@ -405,7 +414,6 @@ class Client:
 
         See example_config.json.
         '''
-        # TODO(danj): fix this
         path = os.path.expanduser(json_path)
         if not os.path.exists(path):
             return perr(f'invalid json_path: {path}')
@@ -423,16 +431,6 @@ class Client:
                     self.updateProject(**project)
                 else:
                     self.createProject(**project)
-
-    def upload_file(self, projectId, path):
-        '''Upload a file locally to a project.
-
-        Args:
-            projectId: the id of the project.
-            path: the path of the file to upload.
-        '''
-        # TODO(danj): fix this
-        return _upload_file(self.endpoint, self.token, projectId, path)
 
     def file_to_pandas(self, projectId, fileName):
         '''Returns a pandas DataFrame of `fileName` in project `projectId`.
@@ -606,7 +604,6 @@ def _ungraphql(root):
 
 
 def _upload_file(endpoint, token, projectId, path):
-    perr(f'uploading {path}')
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         return perr(f'invalid path: {path}')
@@ -616,15 +613,18 @@ def _upload_file(endpoint, token, projectId, path):
     err = _put(path, uri['uri'])
     if err:
         return perr(err)
-    perr(f'finished uploading {path}')
 
 
 def _get_upload_uri(endpoint, token, projectId, path):
     fname = os.path.basename(path)
-    data = _gql(endpoint, token, q.mutation_createFileUploadUri, {
-        'projectId': projectId,
-        'fileName': fname,
-    })
+    data, err = _gql(endpoint, token, q.mutation_createFileUploadUri,
+                     {'input': {
+                         'projectId': projectId,
+                         'fileName': fname,
+                     }})
+    if err:
+        return None, err
+    data = data['createFileUploadUri']
     if data['err']:
         return None, data['err']
     return data['ok'], None
