@@ -290,11 +290,12 @@ class Client:
         Returns:
             group: the resulting group.
         '''
+        kwargs = locals()
         group = self._gql(q.query_group, {'id': id})
         if not group:
-            return
-        d = {k: v for k, v in locals().items() if k != 'self' and v}
-        group.update(d)
+            return perr(f"no group with id '{id}'")
+        group = {k: v for k, v in group.items() if k in kwargs}
+        group.update({k: v for k, v in kwargs.items() if v})
         return self._gql(q.mutation_updateGroup, group)
 
     def updateOauth2Client(
@@ -309,11 +310,12 @@ class Client:
         pkceRequired=None,
     ):
         '''Creates an OAuth2 Client (plugin).'''
+        kwargs = locals()
         client = self._gql(q.query_oauth2Client, {'id': id})
         if not client:
-            return
-        d = {k: v for k, v in locals().items() if k != 'self' and v}
-        client.update(d)
+            return perr(f"no OAuth2 client with id '{id}'")
+        client = {k: v for k, v in client.items() if k in kwargs}
+        client.update({k: v for k, v in kwargs.items() if v})
         return self._gql(q.mutation_updateOauth2Client, client)
 
     def updateProject(
@@ -344,14 +346,16 @@ class Client:
         Returns:
             project: the resulting project.
         '''
+        kwargs = locals()
+        kwargs.pop('files')
         project = self._gql(q.query_project, {'id': id})
         if not project:
-            return
-        d = {k: v for k, v in locals().items() if k != 'self' and v}
-        project.update(d)
-        project = self._gql(q.mutation_updateProject, project)
+            return perr(f"no project with id '{id}'")
+        # TODO(danj): convert output roles to Input roles
+        project = {k: v for k, v in project.items() if k in kwargs}
+        project.update({k: v for k, v in kwargs.items() if v})
         self.upload_files(project['id'], files)
-        return self._gql(q.query_project, {'id': project['id']})
+        return self._gql(q.mutation_updateProject, project)
 
     def updateUser(
         self,
@@ -373,11 +377,12 @@ class Client:
         Returns:
             user: the resulting user.
         '''
+        kwargs = locals()
         user = self._gql(q.query_user, {'id': id})
         if not user:
-            return
-        d = {k: v for k, v in locals().items() if k != 'self' and v}
-        user.update(d)
+            return perr(f"no user with id '{id}'")
+        user = {k: v for k, v in user.items() if k in kwargs}
+        user.update({k: v for k, v in kwargs.items() if v})
         return self._gql(q.mutation_updateUser, user)
 
     # python SDK convenience functions
@@ -604,6 +609,7 @@ def _ungraphql(root):
 
 
 def _upload_file(endpoint, token, projectId, path):
+    print(f'uploading {path}')
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         return perr(f'invalid path: {path}')
