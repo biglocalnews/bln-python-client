@@ -427,7 +427,7 @@ query {{
 
 # MUTATIONS
 
-mutation_authorizeOauth2Client = '''
+mutation_authorizeOauth2Client = f'''
 mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {{
     authorizeOauth2Client(input: $input) {{
         ok {{
@@ -438,7 +438,7 @@ mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {{
 }}
 '''
 
-mutation_authorizeWithPkceOauth2Client = '''
+mutation_authorizeWithPkceOauth2Client = f'''
 mutation AuthorizeWithPKCEOAuth2Client(
     $input: AuthorizeWithPKCEOAuth2ClientInput!
 ) {{
