@@ -141,42 +141,58 @@ class Client:
     def createGroup(
         self,
         name,
-        contact,
-        contactMethod='EMAIL',
-        description='',
+        contact=None,
+        contactMethod=None,
+        description=None,
         userRoles=None,
     ):
         '''Creates a group.
 
         Args:
-            name: a valid group name.
-            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
-            contactMethod: PHONE or EMAIL.
-            description: a group description.
-            userRoles: list who is an admin and member.
+            name: Group name.
+            contact: A phone number with format "+X (XXX) XXX-XXXX" or email;
+                defaults to author's contact value.
+            contactMethod: PHONE or EMAIL; defaults to author's contact method.
+            description: Group details.
+            userRoles: Define user admins and members; defaults to
+                author as sole admin.
 
         Returns:
             group: the resulting group or None if error.
         '''
-        if not userRoles:
-            user = self.user()
-            if not user:
-                return
-            userRoles = {'admin': [user['name']], 'member': []}
-        return self._gql(q.mutation_createGroup, locals())
+        variables = {k: v for k, v in locals().items() if v}
+        return self._gql(q.mutation_createGroup, variables)
 
     def createOauth2Client(
         self,
         name,
-        contact,
-        contactMethod='EMAIL',
-        description='',
-        scopes=['project_read', 'project_write'],
-        redirectUris=[],
+        description,
+        redirectUris,
+        contact=None,
+        contactMethod=None,
+        scopes=None,
         pkceRequired=False,
     ):
-        '''Creates an OAuth2 Client (plugin).'''
-        return self._gql(q.mutation_createOauth2Client, locals())
+        '''Creates an OAuth2 Client (plugin).
+
+        Args:
+            name: Client name; must be unique.
+            description: Plugin description
+            redirectUris: Where to redirect user to for authorization.
+            contact: A phone number with format "+X (XXX) XXX-XXXX" or email;
+                defaults to author's contact value.
+            contactMethod: PHONE or EMAIL; defaults to author's contact method.
+            scopes: {project,group,user}_{read,write} -- user_write and
+                group_write are not allowed for clients; defaults to
+                [user_read, project_read, project_write].
+            pkceRequired: Whether to use PKCE. Required for mobile/SPAs;
+                defaults to False.
+
+        Returns:
+            client: the resulting client or None if error.
+        '''
+        variables = {k: v for k, v in locals().items() if v}
+        return self._gql(q.mutation_createOauth2Client, variables)
 
     def createPersonalToken(self):
         '''Creates a personal token.'''
@@ -185,10 +201,10 @@ class Client:
     def createProject(
         self,
         name,
-        contact,
-        contactMethod='EMAIL',
-        description='',
-        isOpen=False,
+        contact=None,
+        contactMethod=None,
+        description=None,
+        isOpen=None,
         userRoles=None,
         groupRoles=None,
         files=[],
@@ -196,26 +212,22 @@ class Client:
         '''Creates a project.
 
         Args:
-            name: a valid project name.
-            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
-            contactMethod: PHONE or EMAIL.
-            description: a project description.
-            isOpen: whether to make the project open to others on the platform.
-            userRoles: list who is an admin, editor, and viewer.
-            groupRoles: list who is an admin, editor, and viewer.
-            files: list of files locally to upload.
+            name: Project name.
+            contact: A phone number with format "+X (XXX) XXX-XXXX" or email;
+                defaults to author's contact value.
+            contactMethod: PHONE or EMAIL; defaults to author's contact method.
+            description: Project details.
+            isOpen: Whether to make the project open to others on the platform;
+                defaults to False.
+            userRoles: Define user admins, editors, and viewers; defaults
+                to author as sole admin.
+            groupRoles: Define group admins, editors, and viewers; defaults
+                to no group roles.
 
         Returns:
             project: the resulting project or None if error.
         '''
-        variables = {k: v for k, v in locals().items() if k != 'files'}
-        if not userRoles:
-            user = self.user()
-            if not user:
-                return
-            userRoles = {'admin': [user['name']], 'editor': [], 'viewer': []}
-        if not groupRoles:
-            groupRoles = {'admin': [], 'editor': [], 'viewer': []}
+        variables = {k: v for k, v in locals().items() if k != 'files' and v}
         project = self._gql(q.mutation_createProject, variables)
         if not project:
             return
@@ -280,43 +292,33 @@ class Client:
         '''Updates a group.
 
         Args:
-            id: id of group to update.
-            name: a valid group name.
-            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
+            id: ID of group to update.
+            name: Group name.
+            contact: A phone number with format "+X (XXX) XXX-XXXX" or email.
             contactMethod: PHONE or EMAIL.
-            description: a group description.
-            userRoles: list admins and members.
+            description: Group details.
+            userRoles: Define user admins and members.
 
         Returns:
-            group: the resulting group.
+            group: the resulting group or None if error.
         '''
-        kwargs = locals()
-        group = self._gql(q.query_group, {'id': id})
-        if not group:
-            return perr(f"no group with id '{id}'")
-        group = {k: v for k, v in group.items() if k in kwargs}
-        group.update({k: v for k, v in kwargs.items() if v})
-        return self._gql(q.mutation_updateGroup, group)
+        variables = {k: v for k, v in locals().items() if v}
+        return self._gql(q.mutation_updateGroup, variables)
 
     def updateOauth2Client(
         self,
         id,
         name=None,
+        description=None,
+        redirectUris=None,
         contact=None,
         contactMethod=None,
-        description=None,
         scopes=None,
-        redirectUris=None,
-        pkceRequired=None,
+        pkceRequired=False,
     ):
-        '''Creates an OAuth2 Client (plugin).'''
-        kwargs = locals()
-        client = self._gql(q.query_oauth2Client, {'id': id})
-        if not client:
-            return perr(f"no OAuth2 client with id '{id}'")
-        client = {k: v for k, v in client.items() if k in kwargs}
-        client.update({k: v for k, v in kwargs.items() if v})
-        return self._gql(q.mutation_updateOauth2Client, client)
+        '''Update an OAuth2 Client (plugin).'''
+        variables = {k: v for k, v in locals().items() if v}
+        return self._gql(q.mutation_updateOauth2Client, variables)
 
     def updateProject(
         self,
@@ -344,18 +346,11 @@ class Client:
             files: list of files locally to upload.
 
         Returns:
-            project: the resulting project.
+            project: the resulting project or None if error.
         '''
-        kwargs = locals()
-        kwargs.pop('files')
-        project = self._gql(q.query_project, {'id': id})
-        if not project:
-            return perr(f"no project with id '{id}'")
-        # TODO(danj): convert output roles to Input roles
-        project = {k: v for k, v in project.items() if k in kwargs}
-        project.update({k: v for k, v in kwargs.items() if v})
-        self.upload_files(project['id'], files)
-        return self._gql(q.mutation_updateProject, project)
+        variables = {k: v for k, v in locals().items() if k != 'files' and v}
+        self.upload_files(id, files)
+        return self._gql(q.mutation_updateProject, variables)
 
     def updateUser(
         self,
@@ -375,15 +370,10 @@ class Client:
             contactMethod: PHONE or EMAIL.
 
         Returns:
-            user: the resulting user.
+            user: the resulting user or None if error.
         '''
-        kwargs = locals()
-        user = self._gql(q.query_user, {'id': id})
-        if not user:
-            return perr(f"no user with id '{id}'")
-        user = {k: v for k, v in user.items() if k in kwargs}
-        user.update({k: v for k, v in kwargs.items() if v})
-        return self._gql(q.mutation_updateUser, user)
+        variables = {k: v for k, v in locals().items() if v}
+        return self._gql(q.mutation_updateUser, variables)
 
     # python SDK convenience functions
 
