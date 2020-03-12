@@ -427,28 +427,24 @@ query {{
 
 # MUTATIONS
 
-mutation_authorizeOauth2Client = f'''
-mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {{
-    authorizeOauth2Client(input: $input) {{
-        ok {{
-            {fragment_oauth2_client_public}
-        }}
+mutation_authorizeOauth2Client = '''
+mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {
+    authorizeOauth2Client(input: $input) {
+        ok 
         err
-    }}
-}}
+    }
+}
 '''
 
 mutation_authorizeWithPkceOauth2Client = f'''
 mutation AuthorizeWithPKCEOAuth2Client(
     $input: AuthorizeWithPKCEOAuth2ClientInput!
-) {{
-    authorizeWithPkceOauth2Client(input: $input) {{
-        ok {{
-            {fragment_oauth2_client_public}
-        }}
+) {
+    authorizeWithPkceOauth2Client(input: $input) {
+        ok
         err
-    }}
-}}
+    }
+}
 '''
 
 mutation_createFileDownloadUri = '''
