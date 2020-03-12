@@ -430,13 +430,13 @@ query {{
 mutation_authorizeOauth2Client = '''
 mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {
     authorizeOauth2Client(input: $input) {
-        ok 
+        ok
         err
     }
 }
 '''
 
-mutation_authorizeWithPkceOauth2Client = f'''
+mutation_authorizeWithPkceOauth2Client = '''
 mutation AuthorizeWithPKCEOAuth2Client(
     $input: AuthorizeWithPKCEOAuth2ClientInput!
 ) {
