@@ -207,6 +207,7 @@ class Client:
         isOpen=None,
         userRoles=None,
         groupRoles=None,
+        tags=None,
         files=[],
     ):
         '''Creates a project.
@@ -223,6 +224,7 @@ class Client:
                 to author as sole admin.
             groupRoles: Define group admins, editors, and viewers; defaults
                 to no group roles.
+            tags: Project tags.
 
         Returns:
             project: the resulting project or None if error.
@@ -247,6 +249,10 @@ class Client:
             path: the path of the file to upload.
         '''
         return self.upload_file(projectId, [path])
+
+    def createTag(self, name):
+        '''Creates a tag.'''
+        self._gql(q.mutation_createTag, locals())
 
     def deleteFile(self, projectId, fileName):
         '''Deletes `filename` from `projectId`.'''
@@ -330,20 +336,25 @@ class Client:
         isOpen=None,
         userRoles=None,
         groupRoles=None,
+        tags=None,
         files=[],
     ):
         '''Updates a project.
 
         Args:
-            id: id of project to update.
-            name: a valid project name.
-            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
-            contactMethod: PHONE or EMAIL.
-            description: a project description.
-            isOpen: whether to make the project open to others on the platform.
-            userRoles: list who is an admin, editor, and viewer.
-            groupRoles: list who is an admin, editor, and viewer.
-            files: list of files locally to upload.
+            id: ID of project to update.
+            name: Project name.
+            contact: A phone number with format "+X (XXX) XXX-XXXX" or email;
+                defaults to author's contact value.
+            contactMethod: PHONE or EMAIL; defaults to author's contact method.
+            description: Project details.
+            isOpen: Whether to make the project open to others on the platform;
+                defaults to False.
+            userRoles: Define user admins, editors, and viewers; defaults
+                to author as sole admin.
+            groupRoles: Define group admins, editors, and viewers; defaults
+                to no group roles.
+            tags: Project tags.
 
         Returns:
             project: the resulting project or None if error.

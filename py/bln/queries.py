@@ -40,6 +40,7 @@ uri
 uriType
 createdAt
 updatedAt
+tags
 '''
 
 fragment_project = f'''
@@ -85,6 +86,16 @@ effectiveUserRoles {{
 }}
 files {{
     {fragment_file}
+}}
+tags {{
+    edges {{
+        node {{
+            id
+            tag {{
+                name
+            }}
+        }}
+    }}
 }}
 '''
 
@@ -526,6 +537,15 @@ mutation CreateProject($input: CreateProjectInput!) {{
         err
     }}
 }}
+'''
+
+mutation_createTag = '''
+mutation CreateTag($input: CreateTagInput!) {
+    createTag(input: $input) {
+        ok
+        err
+    }
+}
 '''
 
 mutation_deleteFile = '''
