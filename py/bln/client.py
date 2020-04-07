@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import platform
 
 import pandas as pd
 import requests
@@ -237,6 +238,14 @@ class Client:
         return self._gql(q.query_project, {'id': project['id']})
 
     def upload_files(self, projectId, files):
+        # windows will crash if MP is not guarded by main, so run serially
+        if platform.system() == 'Windows':
+            for f in files:
+                self.upload_file(projectId, f)
+            return
+        # TODO(danj): https://bugs.python.org/issue35219
+        if platform.system() == 'Darwin':
+            os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
         with Pool(cpu_count()) as p:
             args = [(self.endpoint, self.token, projectId, f) for f in files]
             p.starmap(_upload_file, args)
@@ -248,7 +257,7 @@ class Client:
             projectId: the id of the project.
             path: the path of the file to upload.
         '''
-        return self.upload_file(projectId, [path])
+        return self._upload_file(projectId, [path])
 
     def createTag(self, name):
         '''Creates a tag.'''
