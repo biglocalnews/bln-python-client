@@ -257,7 +257,7 @@ class Client:
             projectId: the id of the project.
             path: the path of the file to upload.
         '''
-        return self._upload_file(projectId, [path])
+        return self.upload_files(projectId, [path])
 
     def createTag(self, name):
         '''Creates a tag.'''
