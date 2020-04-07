@@ -238,15 +238,13 @@ class Client:
         return self._gql(q.query_project, {'id': project['id']})
 
     def upload_files(self, projectId, files):
-        # windows will crash if MP is not guarded by main, so run serially
-        op_sys = platform.system()
-        if op_sys == 'Windows':
+        # run windows and mac uploads serially, for the following reasons:
+        # windows will crash if MP is not guarded by main
+        # mac has new fork rules: https://bugs.python.org/issue35219
+        if platform.system() != 'Linux':
             for f in files:
                 _upload_file(self.endpoint, self.token, projectId, f)
             return
-        # TODO(danj): https://bugs.python.org/issue35219
-        if op_sys == 'Darwin':
-            os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
         with Pool(cpu_count()) as p:
             args = [(self.endpoint, self.token, projectId, f) for f in files]
             p.starmap(_upload_file, args)
