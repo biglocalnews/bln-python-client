@@ -239,12 +239,13 @@ class Client:
 
     def upload_files(self, projectId, files):
         # windows will crash if MP is not guarded by main, so run serially
-        if platform.system() == 'Windows':
+        op_sys = platform.system()
+        if op_sys == 'Windows':
             for f in files:
-                self.upload_file(projectId, f)
+                _upload_file(self.endpoint, self.token, projectId, f)
             return
         # TODO(danj): https://bugs.python.org/issue35219
-        if platform.system() == 'Darwin':
+        if op_sys == 'Darwin':
             os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
         with Pool(cpu_count()) as p:
             args = [(self.endpoint, self.token, projectId, f) for f in files]
