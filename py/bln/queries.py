@@ -40,7 +40,6 @@ uri
 uriType
 createdAt
 updatedAt
-tags
 '''
 
 fragment_project = f'''
@@ -86,16 +85,6 @@ effectiveUserRoles {{
 }}
 files {{
     {fragment_file}
-}}
-tags {{
-    edges {{
-        node {{
-            id
-            tag {{
-                name
-            }}
-        }}
-    }}
 }}
 '''
 
