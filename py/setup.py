@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='bln',
-    version='0.3.0',
+    version='0.3.1',
     author='Daniel Jenson',
     author_email='daniel.a.jenson@gmail.com',
     description='Big Local News Python SDK',
@@ -15,6 +15,9 @@ setuptools.setup(
     platform='OS Independent',
     url='https://github.com/biglocalnews/sdk/py',
     packages=setuptools.find_packages(),
+    scripts=[
+        'scripts/git-bln',
+    ],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
