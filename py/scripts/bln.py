@@ -63,13 +63,13 @@ if __name__ == '__main__':
     bln_dir = os.path.expanduser('~/.bln')
     if not os.path.exists(bln_dir):
         os.mkdir(bln_dir)
-    # use and save API key or load from ~/.bln/api_key
+    # use and save API key or load from {api_key_path}
     api_key_path = os.path.expanduser('~/.bln/api_key')
     if args.api_key:
         api_key = args.api_key
         with open(api_key_path, 'w') as f:
             f.write(api_key)
-        print('API key saved to ~/.bln/api_key; future calls will use this '
+        print(f'API key saved to {api_key_path}; future calls will use this '
               'API key as a default.')
     else:
         if not os.path.exists(api_key_path):
