@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
 '''Big Local News Python Client.'''
 from multiprocessing import Pool, cpu_count
 from http.client import responses
-import argparse
 import json
 import os
 import re
@@ -689,21 +687,3 @@ def _to_idx(s):
 
 def perr(msg, end='\n'):
     print(msg, file=sys.stderr, end=end)
-
-
-def parse_args(argv):
-    parser = argparse.ArgumentParser(
-        prog=argv[0],
-        description='Big Local News Python Client',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('json_path',
-                        help='json config; see example test_projects.json')
-    parser.add_argument('token', help='personal token')
-    parser.add_argument('-tier', default='prod', help='tier to send to')
-    return parser.parse_args(argv[1:])
-
-
-if __name__ == '__main__':
-    args = parse_args(sys.argv)
-    client = Client(args.token, args.tier)
-    client.upload_from_json(args.json_path)

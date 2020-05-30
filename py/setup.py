@@ -16,6 +16,7 @@ setuptools.setup(
     url='https://github.com/biglocalnews/sdk/py',
     packages=setuptools.find_packages(),
     scripts=[
+        'scripts/bln',
         'scripts/git-bln',
     ],
     classifiers=[
