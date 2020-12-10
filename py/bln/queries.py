@@ -36,10 +36,19 @@ contact
 
 fragment_file = '''
 name
-uri
-uriType
 createdAt
 updatedAt
+tags {
+    edges {
+        node {
+            id
+            tag {
+                id
+                name
+            }
+        }
+    }
+}
 '''
 
 fragment_project = f'''
