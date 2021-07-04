@@ -41,4 +41,4 @@ jobs:
         shell: bash
 
       - name: Lint
-        run: cd py && flake8 ./scripts
+        run: cd py && pipenv run flake8 ./scripts
