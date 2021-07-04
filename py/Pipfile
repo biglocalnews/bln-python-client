@@ -8,6 +8,7 @@ name = "pypi"
 [dev-packages]
 flake8 = "*"
 importlib-metadata = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.8"
