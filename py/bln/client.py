@@ -332,6 +332,25 @@ class Client:
         variables = {k: v for k, v in locals().items() if v}
         return self._gql(q.mutation_updateOauth2Client, variables)
 
+    def getProject(self, id_or_name):
+        '''Get a project
+        
+        Args:
+            id_or_name: The unique ID or name of the project to return
+        '''
+        project_list = self.effectiveProjectRoles()
+        matches = [
+            i['project'] for i in project_list
+            if i['project']['name'] == id_or_name
+            or i['project']['id'] == id_or_name
+        ]
+        if len(matches) == 0:
+            raise ValueError(f"A project with id or name of {id_or_name} could not be found")
+        elif len(matches) > 1:
+            raise ValueError(f"{len(matches)} with id or name of {id_or_name} were found."}
+        else:
+            return matches[0]
+
     def updateProject(
         self,
         id,
