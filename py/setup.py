@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='bln',
-    version='0.3.2',
+    version='0.4',
     author='Daniel Jenson',
     author_email='daniel.a.jenson@gmail.com',
     description='Big Local News Python SDK',

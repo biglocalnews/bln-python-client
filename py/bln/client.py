@@ -14,12 +14,17 @@ from . import queries as q
 
 class Client:
     '''Big Local News Python Client.'''
-    def __init__(self, token, tier='prod'):
+    def __init__(self, token, tier='prod', actor='user'):
         '''Creates a Big Local News Python Client.
 
         Args:
-            token: a personal token generated on the Big Local News website.
+            token: if the actor is 'user', this is a personal JWT; if it is
+                'user_plugin', this is a token received from the OAuth2 process;
+                lastly, if the actor is 'plugin', the token is a string in the
+                format '{client_id}:{secret}'
             tier: only 'prod' will work for external developers.
+            actor: ['user', 'user_plugin', 'plugin'] -- the authorization role
+                of the entity making graphql calls
 
         Returns:
             client: a Big Local News Python Client.
@@ -30,6 +35,11 @@ class Client:
             'dev': 'https://dev-api.biglocalnews.org/graphql',
             'prod': 'https://api.biglocalnews.org/graphql',
         }[tier]
+        self.auth_method = {
+            'user': 'JWT',
+            'user_plugin': 'Bearer',
+            'plugin': 'Basic',
+        }[actor]
 
     def _gql(self, query, variables={}):
         # special case: node query, which doesn't use an *Input type
@@ -42,7 +52,8 @@ class Client:
                 'input': {k: v
                           for k, v in variables.items() if k != 'self'}
             }
-        data, err = _gql(self.endpoint, self.token, query, variables)
+        data, err = _gql(self.endpoint, self.auth_method, self.token, query,
+                         variables)
         # network error
         if err:
             return perr(err)
@@ -63,8 +74,8 @@ class Client:
 
     def raw(self, query, variables={}, ungraphql=False):
         '''Execute a raw query directly with variables.'''
-        data, err = _gql(self.endpoint, self.token, query, variables,
-                         ungraphql)
+        data, err = _gql(self.endpoint, self.auth_method, self.token, query,
+                         variables, ungraphql)
         if err:
             return perr(err)
         return data
@@ -241,10 +252,12 @@ class Client:
         # mac has new fork rules: https://bugs.python.org/issue35219
         if platform.system() != 'Linux':
             for f in files:
-                _upload_file(self.endpoint, self.token, projectId, f)
+                _upload_file(self.endpoint, self.auth_method, self.token,
+                             projectId, f)
             return
         with Pool(cpu_count()) as p:
-            args = [(self.endpoint, self.token, projectId, f) for f in files]
+            args = [(self.endpoint, self.auth_method, self.token, projectId, f)
+                    for f in files]
             p.starmap(_upload_file, args)
 
     def upload_file(self, projectId, path):
@@ -539,9 +552,9 @@ class Client:
         return files
 
     def search_to_pandas(
-        self,
-        file_predicate=lambda f: re.match('.*', f['name']),
-        project_predicate=lambda p: re.match('.*', p['name']),
+            self,
+            file_predicate=lambda f: re.match('.*', f['name']),
+            project_predicate=lambda p: re.match('.*', p['name']),
     ):
         '''Returns matching project/file name regex to pandas DataFrame.
 
@@ -575,13 +588,14 @@ class Client:
 
 def _gql(
     endpoint,
+    auth_method,
     token,
     query_string,
     variables={},
     ungraphql=True,
 ):
     inpt = {'query': query_string, 'variables': variables}
-    headers = {'Authorization': f'JWT {token}'}
+    headers = {'Authorization': f'{auth_method} {token}'}
     res = requests.post(endpoint, json=inpt, headers=headers)
     if res.status_code != requests.codes.ok:
         return None, responses[res.status_code]
@@ -615,12 +629,12 @@ def _ungraphql(root):
     return root
 
 
-def _upload_file(endpoint, token, projectId, path):
+def _upload_file(endpoint, auth_method, token, projectId, path):
     print(f'uploading {path}')
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         return perr(f'invalid path: {path}')
-    uri, err = _get_upload_uri(endpoint, token, projectId, path)
+    uri, err = _get_upload_uri(endpoint, auth_method, token, projectId, path)
     if err:
         return perr(err)
     err = _put(path, uri['uri'])
@@ -628,9 +642,10 @@ def _upload_file(endpoint, token, projectId, path):
         return perr(err)
 
 
-def _get_upload_uri(endpoint, token, projectId, path):
+def _get_upload_uri(endpoint, auth_method, token, projectId, path):
     fname = os.path.basename(path)
-    data, err = _gql(endpoint, token, q.mutation_createFileUploadUri,
+    data, err = _gql(endpoint, auth_method, token,
+                     q.mutation_createFileUploadUri,
                      {'input': {
                          'projectId': projectId,
                          'fileName': fname,
