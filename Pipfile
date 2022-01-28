@@ -20,6 +20,7 @@ pytest = "*"
 pytest-vcr = "*"
 pytest-cov = "*"
 twine = "*"
+setuptools-scm = "*"
 
 [requires]
 python_version = "3.9"
