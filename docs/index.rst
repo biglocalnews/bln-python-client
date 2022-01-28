@@ -13,6 +13,15 @@ Use `pip` or `pipenv` to install the Python library and command-line interface.
 
     pipenv install bln
 
+Documentation
+#############
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   reference
+
 Links
 #####
 
