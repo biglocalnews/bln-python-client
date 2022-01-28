@@ -9,6 +9,7 @@ from bln.client import Client
 
 
 def parse_args(argv):
+    """Parse arguments."""
     parser = argparse.ArgumentParser(
         prog=argv[0],
         description="Big Local News Python Client",
@@ -52,10 +53,12 @@ def parse_args(argv):
 
 
 def is_git(cmd):
+    """Test if a git command."""
     return cmd.endswith("git-bln")
 
 
 def git_root():
+    """Return the git root."""
     return (
         sub.Popen(["git", "rev-parse", "--show-toplevel"], stdout=sub.PIPE)
         .communicate()[0]
