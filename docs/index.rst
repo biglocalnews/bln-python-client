@@ -20,6 +20,7 @@ Documentation
    :glob:
    :maxdepth: 1
 
+   gettingstarted
    reference
 
 Links
