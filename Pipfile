@@ -18,6 +18,9 @@ sphinx = "*"
 sphinx-autobuild = "*"
 myst-parser = "*"
 sphinxcontrib-napoleon = "*"
+pytest = "*"
+pytest-vcr = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.9"

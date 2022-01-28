@@ -22,6 +22,26 @@ jobs:
         name: Lint Python code
         run: pipenv run flake8 ./ --verbose
 
+  test-python:
+    strategy:
+      matrix:
+        python: ["3.7", "3.8", "3.9", "3.10"]
+    name: Test Python code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - id: install
+        name: Install Python, pipenv and Pipfile packages
+        uses: palewire/install-python-pipenv-pipfile@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - id: run
+        name: Run tests
+        run: pipenv run pytest --cov
+
   test-build:
     name: Build Python package
     runs-on: ubuntu-latest
