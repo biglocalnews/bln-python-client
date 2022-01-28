@@ -1,1 +1,1 @@
-Python client for the biglocalnews.org API
+Python client for the [biglocalnews.org](https://biglocalnews.org/) API
