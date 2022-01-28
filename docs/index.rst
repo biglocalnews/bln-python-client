@@ -1,20 +1,26 @@
-.. bln documentation master file, created by
-   sphinx-quickstart on Thu Jan 27 20:18:24 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+#################
+bln-python-client
+#################
 
-Welcome to bln's documentation!
-===============================
+Python client for the biglocalnews.org API
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+Installation
+############
 
+Use `pip` or `pipenv` to install the Python library and command-line interface.
 
+.. code-block:: bash
 
-Indices and tables
-==================
+    pipenv install warn-scraper
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Links
+#####
+
+* Documentation: `bln-python-client.readthedocs.io <https://bln-python-client.readthedocs.io/>`_
+* Repository: `github.com/biglocalnews/bln-python-client <https://github.com/biglocalnews/bln-python-client>`_
+* Packaging: `pypi.org/project/bln <https://pypi.org/project/bln/>`_
+
+About
+#####
+
+The project is sponsored by `Big Local News <https://biglocalnews.org/#/about>`_, a program at Stanford University that collects data for impactful journalism. The code is maintained by Stanford Lecturer `Serdar Tumgoren <https://comm.stanford.edu/faculty-tumgoren/>`_ and `Ben Welsh <https://palewi.re/who-is-ben-welsh/>`_, a visiting data journalist from the Los Angeles Times.
