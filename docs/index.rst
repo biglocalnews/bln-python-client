@@ -11,7 +11,7 @@ Use `pip` or `pipenv` to install the Python library and command-line interface.
 
 .. code-block:: bash
 
-    pipenv install warn-scraper
+    pipenv install bln
 
 Links
 #####
