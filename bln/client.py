@@ -17,7 +17,7 @@ class Client:
     """Big Local News Python Client."""
 
     def __init__(self, token, tier="prod"):
-        """Creates a Big Local News Python Client.
+        """Create a Big Local News Python Client.
 
         Args:
             token: a personal token generated on the Big Local News website.
@@ -33,7 +33,8 @@ class Client:
             "prod": "https://api.biglocalnews.org/graphql",
         }[tier]
 
-    def _gql(self, query, variables={}):
+    def _gql(self, query, variables=None):
+        variables = variables or {}
         # special case: node query, which doesn't use an *Input type
         is_node = len(variables) == 1 and "id" in variables
         if not is_node:
@@ -46,7 +47,7 @@ class Client:
         if err:
             return perr(err)
         if isinstance(data, dict):
-            for k, v in data.items():
+            for _k, v in data.items():
                 # unwrap single-item dict lists
                 if len(data) == 1 and isinstance(v, list):
                     return v
@@ -60,63 +61,63 @@ class Client:
         # query result
         return data
 
-    def raw(self, query, variables={}, ungraphql=False):
+    def raw(self, query, variables=None, ungraphql=False):
         """Execute a raw query directly with variables."""
-        data, err = _gql(self.endpoint, self.token, query, variables, ungraphql)
+        data, err = _gql(self.endpoint, self.token, query, variables or {}, ungraphql)
         if err:
             return perr(err)
         return data
 
     def everything(self):
-        """Returns all information accessible by the current user."""
+        """Return all information accessible by the current user."""
         return self._gql(q.query_everything)
 
     def user(self):
-        """Returns information about the current user."""
+        """Return information about the current user."""
         return self._gql(q.query_user)
 
     def groupRoles(self):
-        """Returns the current user's group roles and groups."""
+        """Return the current user's group roles and groups."""
         return self._gql(q.query_groupRoles)
 
     def projectRoles(self):
-        """Returns the current user's project roles and projects."""
+        """Return the current user's project roles and projects."""
         return self._gql(q.query_projectRoles)
 
     def effectiveProjectRoles(self):
-        """Returns the current user's effective project roles and projects."""
+        """Return the current user's effective project roles and projects."""
         return self._gql(q.query_effectiveProjectRoles)
 
     def personalTokens(self):
-        """Returns the current user's personal tokens."""
+        """Return the current user's personal tokens."""
         return self._gql(q.query_personalTokens)
 
     def oauth2Codes(self):
-        """Returns the current user's OAuth2 codes (authorized plugins)."""
+        """Return the current user's OAuth2 codes (authorized plugins)."""
         return self._gql(q.query_oauth2Codes)
 
     def oauth2Tokens(self):
-        """Returns the current user's OAuth2 tokens (authorized plugins)."""
+        """Return the current user's OAuth2 tokens (authorized plugins)."""
         return self._gql(q.query_oauth2Tokens)
 
     def oauth2Clients(self):
-        """Returns the current user's owned OAuth2 clients (plugins)."""
+        """Return the current user's owned OAuth2 clients (plugins)."""
         return self._gql(q.query_oauth2Clients)
 
     def userNames(self):
-        """Returns a list of the user names on the platform."""
+        """Return a list of the user names on the platform."""
         return self._gql(q.query_userNames)
 
     def groupNames(self):
-        """Returns a list of the group names on the platform."""
+        """Return a list of the group names on the platform."""
         return self._gql(q.query_groupNames)
 
     def openProjects(self):
-        """Returns a list of open projects."""
+        """Return a list of open projects."""
         return self._gql(q.query_openProjects)
 
     def oauth2ClientsPublic(self):
-        """Returns a list of Public OAuth2 Clients, i.e. plugins."""
+        """Return a list of Public OAuth2 Clients, i.e. plugins."""
         return self._gql(q.query_oauth2ClientsPublic)
 
     def authorizeOauth2Client(self, id, state):
@@ -143,7 +144,7 @@ class Client:
         description=None,
         userRoles=None,
     ):
-        """Creates a group.
+        """Create a group.
 
         Args:
             name: Group name.
@@ -170,7 +171,7 @@ class Client:
         scopes=None,
         pkceRequired=False,
     ):
-        """Creates an OAuth2 Client (plugin).
+        """Create an OAuth2 Client (plugin).
 
         Args:
             name: Client name; must be unique.
@@ -192,7 +193,7 @@ class Client:
         return self._gql(q.mutation_createOauth2Client, variables)
 
     def createPersonalToken(self):
-        """Creates a personal token."""
+        """Create a personal token."""
         return self._gql(q.mutation_createPersonalToken)
 
     def createProject(
@@ -205,9 +206,9 @@ class Client:
         userRoles=None,
         groupRoles=None,
         tags=None,
-        files=[],
+        files=None,
     ):
-        """Creates a project.
+        """Create a project.
 
         Args:
             name: Project name.
@@ -230,10 +231,11 @@ class Client:
         project = self._gql(q.mutation_createProject, variables)
         if not project:
             return
-        self.upload_files(project["id"], files)
+        self.upload_files(project["id"], files or [])
         return self._gql(q.query_project, {"id": project["id"]})
 
     def upload_files(self, projectId, files):
+        """Upload a files to the provided project id."""
         # run windows and mac uploads serially, for the following reasons:
         # windows will crash if MP is not guarded by main
         # mac has new fork rules: https://bugs.python.org/issue35219
@@ -255,39 +257,39 @@ class Client:
         return self.upload_files(projectId, [path])
 
     def createTag(self, name):
-        """Creates a tag."""
+        """Create a tag."""
         self._gql(q.mutation_createTag, locals())
 
     def deleteFile(self, projectId, fileName):
-        """Deletes `filename` from `projectId`."""
+        """Delete `filename` from `projectId`."""
         return self._gql(q.mutation_deleteFile, locals())
 
     def deleteProject(self, id):
-        """Deletes project `projectId`."""
+        """Delete project `projectId`."""
         return self._gql(q.mutation_deleteProject, locals())
 
     def deleteOauth2Client(self, id):
-        """Deletes OAuth2 Client with id `id`."""
+        """Delete OAuth2 Client with id `id`."""
         return self._gql(q.mutation_deleteOauth2Client, locals())
 
     def exchangeOauth2CodeForToken(self, code):
-        """Exchanges an OAuth2 code for a token."""
+        """Exchange an OAuth2 code for a token."""
         return self._gql(q.mutation_exchangeOauth2CodeForToken, locals())
 
     def exchangeOauth2CodeWithPkceForToken(self, code, codeVerifier):
-        """Exchanges an OAuth2 code and code verifier for a token."""
+        """Exchange an OAuth2 code and code verifier for a token."""
         return self._gql(q.mutation_exchangeOauth2CodeForToken, locals())
 
     def revokeOauth2Token(self, token):
-        """Revokes an OAuth2 token (used by clients)."""
+        """Revoke an OAuth2 token (used by clients)."""
         return self._gql(q.mutation_revokeOauth2Token, locals())
 
     def revokePersonalTokens(self, token):
-        """Revokes a Personal Tokens."""
+        """Revoke a Personal Tokens."""
         return self._gql(q.mutation_revokePersonalToken, locals())
 
     def unauthorizeOauth2Client(self, id):
-        """Unauthorizes an OAuth2 client by id."""
+        """Unauthorize an OAuth2 client by id."""
         return self._gql(q.mutation_unauthorizeOauth2Client, locals())
 
     def updateGroup(
@@ -299,7 +301,7 @@ class Client:
         description=None,
         userRoles=None,
     ):
-        """Updates a group.
+        """Update a group.
 
         Args:
             id: ID of group to update.
@@ -341,9 +343,9 @@ class Client:
         userRoles=None,
         groupRoles=None,
         tags=None,
-        files=[],
+        files=None,
     ):
-        """Updates a project.
+        """Update a project.
 
         Args:
             id: ID of project to update.
@@ -364,7 +366,7 @@ class Client:
             project: the resulting project or None if error.
         """
         variables = {k: v for k, v in locals().items() if k != "files" and v}
-        self.upload_files(id, files)
+        self.upload_files(id, files or [])
         return self._gql(q.mutation_updateProject, variables)
 
     def updateUser(
@@ -375,7 +377,7 @@ class Client:
         contact=None,
         contactMethod=None,
     ):
-        """Updates a user.
+        """Update a user.
 
         Args:
             id: id of user to update.
@@ -393,7 +395,7 @@ class Client:
     # python SDK convenience functions
 
     def download_file(self, projectId, filename, output_dir=None):
-        """Downloads `filename` in project `projectId` to `output_dir`.
+        """Download `filename` in project `projectId` to `output_dir`.
 
         Args:
             projectId: the id of a Big Local News project.
@@ -420,7 +422,7 @@ class Client:
             return output_path
 
     def upload_from_json(self, json_path):
-        """Uploads groups and projects from a json config.
+        """Upload groups and projects from a json config.
 
         See example_config.json.
         """
@@ -443,7 +445,7 @@ class Client:
                     self.createProject(**project)
 
     def file_to_pandas(self, projectId, fileName):
-        """Returns a pandas DataFrame of `fileName` in project `projectId`.
+        """Return a pandas DataFrame of `fileName` in project `projectId`.
 
         Args:
             projectId: the id of the project.
@@ -464,7 +466,7 @@ class Client:
         return pd.read_table(uri["uri"], sep=None, engine="python")
 
     def pandas_to_csv(self, df, projectId, fileName):
-        """Uploads a pandas DataFrame to project `projectId` as `fileName`.
+        """Upload a pandas DataFrame to project `projectId` as `fileName`.
 
         Args:
             df: a pandas DataFrame.
@@ -481,7 +483,7 @@ class Client:
         return _put_string(df.to_csv(index=False), uri["uri"])
 
     def search_groups(self, predicate=lambda g: re.match(".*", g["name"])):
-        """Returns groups where `predicate(group)` is True.
+        """Return groups where `predicate(group)` is True.
 
         Args:
             predicate: (optional) a function that takes a group and returns
@@ -498,7 +500,7 @@ class Client:
         return groups
 
     def search_projects(self, predicate=lambda p: re.match(".*", p["name"])):
-        """Returns projects where `predicate(project)` is True.
+        """Return projects where `predicate(project)` is True.
 
         Args:
             predicate: (optional) a function that takes a project and returns
@@ -515,7 +517,7 @@ class Client:
         return projects
 
     def search_files(self, predicate=lambda f: re.match(".*", f["name"])):
-        """Returns projects where `predicate(file)` is True.
+        """Return projects where `predicate(file)` is True.
 
         Args:
             predicate: (optional) a function that takes a file object and
@@ -541,7 +543,7 @@ class Client:
         file_predicate=lambda f: re.match(".*", f["name"]),
         project_predicate=lambda p: re.match(".*", p["name"]),
     ):
-        """Returns matching project/file name regex to pandas DataFrame.
+        """Return matching project/file name regex to pandas DataFrame.
 
         Args:
             file_predicate: (optional) a function that takes a File object and
@@ -575,10 +577,10 @@ def _gql(
     endpoint,
     token,
     query_string,
-    variables={},
+    variables=None,
     ungraphql=True,
 ):
-    inpt = {"query": query_string, "variables": variables}
+    inpt = {"query": query_string, "variables": variables or {}}
     headers = {"Authorization": f"JWT {token}"}
     res = requests.post(endpoint, json=inpt, headers=headers)
     if res.status_code != requests.codes.ok:
@@ -690,4 +692,5 @@ def _to_idx(s):
 
 
 def perr(msg, end="\n"):
+    """Print error to stdout."""
     print(msg, file=sys.stderr, end=end)
