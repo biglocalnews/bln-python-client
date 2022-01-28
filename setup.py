@@ -41,8 +41,6 @@ setuptools.setup(
     python_requires=">=3.6",
     install_requires=[
         "requests",
-        "pandas",
-        "xlrd",
     ],
     project_urls={
         "Maintainer": "https://github.com/biglocalnews",
