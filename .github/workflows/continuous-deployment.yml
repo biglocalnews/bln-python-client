@@ -73,7 +73,7 @@ jobs:
         name: Save artifact
         uses: actions/upload-artifact@v2
         with:
-          name: test-build-${{ github.run_number }}
+          name: build-${{ github.run_number }}
           path: ./dist
           if-no-files-found: error
 
@@ -92,7 +92,7 @@ jobs:
         name: Fetch artifact
         uses: actions/download-artifact@v2
         with:
-          name: test-release-${{ github.run_number }}
+          name: build-${{ github.run_number }}
           path: ./dist
 
       - id: publish
@@ -121,7 +121,7 @@ jobs:
         name: Fetch artifact
         uses: actions/download-artifact@v2
         with:
-          name: test-release-${{ github.run_number }}
+          name: build-${{ github.run_number }}
           path: ./dist
 
       - id: publish
