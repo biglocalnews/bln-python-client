@@ -21,3 +21,35 @@ jobs:
       - id: lint
         name: Lint Python code
         run: pipenv run flake8 ./ --verbose
+
+  test-build:
+    name: Build Python package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - id: install
+        name: Install Python, pipenv and Pipfile packages
+        uses: palewire/install-python-pipenv-pipfile@v2
+        with:
+          python-version: 3.9
+
+      - id: build
+        name: Build release
+        run: |
+          pipenv run python setup.py sdist
+          pipenv run python setup.py bdist_wheel
+          ls -l dist
+
+      - id: check
+        name: Check release
+        run: pipenv run twine check dist/*
+
+      - id: save
+        name: Save artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-build-${{ github.run_number }}
+          path: ./dist
+          if-no-files-found: error
