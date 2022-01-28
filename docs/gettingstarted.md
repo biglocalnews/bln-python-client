@@ -1,4 +1,4 @@
-# Getting started with the Big Local News Python SDK
+# Getting started
 
 ## Contents
 
