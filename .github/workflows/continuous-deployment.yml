@@ -20,7 +20,7 @@ jobs:
 
       - id: lint
         name: Lint Python code
-        run: pipenv run flake8 ./ --verbose
+        run: make lint
 
   test-python:
     strategy:
