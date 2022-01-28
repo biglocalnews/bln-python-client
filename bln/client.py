@@ -7,7 +7,6 @@ import sys
 from http.client import responses
 from multiprocessing import Pool, cpu_count
 
-import pandas as pd
 import requests
 
 from . import queries as q
@@ -448,44 +447,6 @@ class Client:
                 else:
                     self.createProject(**project)
 
-    def file_to_pandas(self, projectId, fileName):
-        """Return a pandas DataFrame of `fileName` in project `projectId`.
-
-        Args:
-            projectId: the id of the project.
-            fileName: the remote file name.
-
-        Returns:
-            df: a pandas DataFrame.
-        """
-        uri = self.createFileDownloadUri(projectId, fileName)
-        if not uri:
-            return
-        return self._uri_to_pandas(uri)
-
-    def _uri_to_pands(self, uri):
-        if _is_excel(uri["name"]):
-            return pd.read_excel(uri["uri"])
-        # sep=None and engine='python' tells pandas to detect the type
-        return pd.read_table(uri["uri"], sep=None, engine="python")
-
-    def pandas_to_csv(self, df, projectId, fileName):
-        """Upload a pandas DataFrame to project `projectId` as `fileName`.
-
-        Args:
-            df: a pandas DataFrame.
-            projectId: the id of the project.
-            fileName: the remote filename.
-        """
-        if not isinstance(df, pd.DataFrame):
-            return perr("Can only upload pandas DataFrames.")
-        if os.path.splitext(fileName)[1] != ".csv":
-            return perr("Must upload to a file with a csv extension.")
-        uri = self.createFileUploadUri(projectId, fileName)
-        if not uri:
-            return
-        return _put_string(df.to_csv(index=False), uri["uri"])
-
     def search_groups(self, predicate=lambda g: re.match(".*", g["name"])):
         """Return groups where `predicate(group)` is True.
 
@@ -541,40 +502,6 @@ class Client:
                     f["projectName"] = v["project"]["name"]
                     files.append(f)
         return files
-
-    def search_to_pandas(
-        self,
-        file_predicate=lambda f: re.match(".*", f["name"]),
-        project_predicate=lambda p: re.match(".*", p["name"]),
-    ):
-        """Return matching project/file name regex to pandas DataFrame.
-
-        Args:
-            file_predicate: (optional) a function that takes a File object and
-                returns True or False.
-            project_predicate: (optional) a function that takes a project and
-                returns True or False.
-
-            The for those files that match both the `file_predicate` and
-            the `project_predicate`, the user is asked to select one to load
-            into pandas.
-
-        Returns:
-            df: a pandas DataFrame.
-        """
-        uris = []
-        for v in self.effectiveProjectRoles():
-            if project_predicate(v["project"]):
-                for f in v["project"]["files"]:
-                    if file_predicate(f):
-                        f["projectId"] = v["project"]["id"]
-                        f["projectName"] = v["project"]["name"]
-                        uris.append(f)
-        if not uris:
-            return perr("No matching files")
-        idx = _select_idx([uri["name"] for uri in uris])
-        uri = dict(enumerate(uris))[idx]
-        return self._uri_to_pands(uri)
 
 
 def _gql(
@@ -672,10 +599,6 @@ def _put_string(string, uri):
     res = requests.put(uri, data=string.encode("utf-8"), headers=headers)
     if res.status_code != requests.codes.ok:
         return responses[res.status_code]
-
-
-def _is_excel(filename):
-    return os.path.splitext(filename)[1] in [".xls", ".xlsx"]
 
 
 def _select_idx(options):
