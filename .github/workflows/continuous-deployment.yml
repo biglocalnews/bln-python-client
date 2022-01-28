@@ -41,6 +41,8 @@ jobs:
       - id: run
         name: Run tests
         run: pipenv run pytest --cov
+        env:
+          BLN_API_TOKEN: ${{ secrets.BLN_API_TOKEN }}
 
   test-build:
     name: Build Python package
