@@ -1,13 +1,13 @@
 # FRAGMENTS
-fragment_user = '''
+fragment_user = """
 id
 name
 displayName
 contactMethod
 contact
-'''
+"""
 
-fragment_group = f'''
+fragment_group = f"""
 id
 updatedAt
 name
@@ -25,16 +25,16 @@ userRoles {{
         }}
     }}
 }}
-'''
+"""
 
-fragment_group_public = '''
+fragment_group_public = """
 id
 name
 contactMethod
 contact
-'''
+"""
 
-fragment_file = '''
+fragment_file = """
 name
 createdAt
 updatedAt
@@ -49,9 +49,9 @@ tags {
         }
     }
 }
-'''
+"""
 
-fragment_project = f'''
+fragment_project = f"""
 id
 updatedAt
 name
@@ -95,9 +95,9 @@ effectiveUserRoles {{
 files {{
     {fragment_file}
 }}
-'''
+"""
 
-fragment_oauth2_client_public = f'''
+fragment_oauth2_client_public = f"""
 id
 name
 contactMethod
@@ -107,9 +107,9 @@ scopes
 author {{
     {fragment_user}
 }}
-'''
+"""
 
-fragment_oauth2_client_private = f'''
+fragment_oauth2_client_private = f"""
 {fragment_oauth2_client_public}
 secret
 pkceRequired
@@ -141,11 +141,11 @@ oauth2Tokens {{
         }}
     }}
 }}
-'''
+"""
 
 # QUERIES
 
-query_everything = f'''
+query_everything = f"""
 query {{
     user {{
         {fragment_user}
@@ -224,26 +224,26 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_user = f'''
+query_user = f"""
 query {{
     user {{
         {fragment_user}
     }}
 }}
-'''
+"""
 
-query_group = f'''
+query_group = f"""
 query Node($id: ID!) {{
     node(id: $id) {{
         ... on Group {{
             {fragment_group}
     }}
 }}
-'''
+"""
 
-query_project = f'''
+query_project = f"""
 query Node($id: ID!) {{
     node(id: $id) {{
         ... on Project {{
@@ -251,9 +251,9 @@ query Node($id: ID!) {{
         }}
     }}
 }}
-'''
+"""
 
-query_oauth2Client = f'''
+query_oauth2Client = f"""
 query Node($id: ID!) {{
     node(id: $id) {{
         ... on OAuth2Client {{
@@ -261,9 +261,9 @@ query Node($id: ID!) {{
         }}
     }}
 }}
-'''
+"""
 
-query_oauth2ClientPublic = f'''
+query_oauth2ClientPublic = f"""
 query Node($id: ID!) {{
     node(id: $id) {{
         ... on OAuth2Client {{
@@ -271,9 +271,9 @@ query Node($id: ID!) {{
         }}
     }}
 }}
-'''
+"""
 
-query_groupRoles = f'''
+query_groupRoles = f"""
 query {{
     user {{
         id
@@ -290,9 +290,9 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_projectRoles = f'''
+query_projectRoles = f"""
 query {{
     user {{
         id
@@ -309,9 +309,9 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_effectiveProjectRoles = f'''
+query_effectiveProjectRoles = f"""
 query {{
     user {{
         id
@@ -328,9 +328,9 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_personalTokens = '''
+query_personalTokens = """
 query {
     user {
         id
@@ -344,9 +344,9 @@ query {
         }
     }
 }
-'''
+"""
 
-query_oauth2Codes = f'''
+query_oauth2Codes = f"""
 query {{
     user {{
         id
@@ -365,9 +365,9 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_oauth2Tokens = f'''
+query_oauth2Tokens = f"""
 query {{
     user {{
         id
@@ -385,9 +385,9 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_oauth2Clients = f'''
+query_oauth2Clients = f"""
 query {{
     user {{
         id
@@ -400,21 +400,21 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_userNames = '''
+query_userNames = """
 query {
     userNames
 }
-'''
+"""
 
-query_groupNames = '''
+query_groupNames = """
 query {
     groupNames
 }
-'''
+"""
 
-query_openProjects = f'''
+query_openProjects = f"""
 query {{
     openProjects {{
         edges {{
@@ -424,28 +424,28 @@ query {{
         }}
     }}
 }}
-'''
+"""
 
-query_oauth2ClientsPublic = f'''
+query_oauth2ClientsPublic = f"""
 query {{
     oauth2Clients {{
         {fragment_oauth2_client_public}
     }}
 }}
-'''
+"""
 
 # MUTATIONS
 
-mutation_authorizeOauth2Client = '''
+mutation_authorizeOauth2Client = """
 mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {
     authorizeOauth2Client(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_authorizeWithPkceOauth2Client = '''
+mutation_authorizeWithPkceOauth2Client = """
 mutation AuthorizeWithPKCEOAuth2Client(
     $input: AuthorizeWithPKCEOAuth2ClientInput!
 ) {
@@ -454,9 +454,9 @@ mutation AuthorizeWithPKCEOAuth2Client(
         err
     }
 }
-'''
+"""
 
-mutation_createFileDownloadUri = '''
+mutation_createFileDownloadUri = """
 mutation CreateFileDownloadURI($input: FileURIInput!) {
     createFileDownloadUri(input: $input) {
         ok {
@@ -467,9 +467,9 @@ mutation CreateFileDownloadURI($input: FileURIInput!) {
         err
     }
 }
-'''
+"""
 
-mutation_createFileUploadUri = '''
+mutation_createFileUploadUri = """
 mutation CreateFileUploadURI($input: FileURIInput!) {
     createFileUploadUri(input: $input) {
         ok {
@@ -480,9 +480,9 @@ mutation CreateFileUploadURI($input: FileURIInput!) {
         err
     }
 }
-'''
+"""
 
-mutation_createGroup = f'''
+mutation_createGroup = f"""
 mutation CreateGroup($input: CreateGroupInput!) {{
     createGroup(input: $input) {{
         ok {{
@@ -491,9 +491,9 @@ mutation CreateGroup($input: CreateGroupInput!) {{
         err
     }}
 }}
-'''
+"""
 
-mutation_createNewOauth2ClientSecret = f'''
+mutation_createNewOauth2ClientSecret = f"""
 mutation CreateNewOAuth2ClientSecret(
     $input: CreateNewOAuth2ClientSecretInput!
 ) {{
@@ -504,9 +504,9 @@ mutation CreateNewOAuth2ClientSecret(
         err
     }}
 }}
-'''
+"""
 
-mutation_createOauth2Client = f'''
+mutation_createOauth2Client = f"""
 mutation CreateOAuth2Client($input: CreateOAuth2ClientInput!) {{
     createOauth2Client(input: $input) {{
         ok {{
@@ -515,18 +515,18 @@ mutation CreateOAuth2Client($input: CreateOAuth2ClientInput!) {{
         err
     }}
 }}
-'''
+"""
 
-mutation_createPersonalToken = '''
+mutation_createPersonalToken = """
 mutation CreatePersonalToken {
     createPersonalToken {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_createProject = f'''
+mutation_createProject = f"""
 mutation CreateProject($input: CreateProjectInput!) {{
     createProject(input: $input) {{
         ok {{
@@ -535,18 +535,18 @@ mutation CreateProject($input: CreateProjectInput!) {{
         err
     }}
 }}
-'''
+"""
 
-mutation_createTag = '''
+mutation_createTag = """
 mutation CreateTag($input: CreateTagInput!) {
     createTag(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_deleteFile = '''
+mutation_deleteFile = """
 mutation DeleteFile($input: FileURIInput!) {
     deleteFile(input: $input) {
         ok {
@@ -555,36 +555,36 @@ mutation DeleteFile($input: FileURIInput!) {
         err
     }
 }
-'''
+"""
 
-mutation_deleteProject = '''
+mutation_deleteProject = """
 mutation DeleteProject($input: DeleteProjectInput!) {
     deleteProject(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_deleteOauth2Client = '''
+mutation_deleteOauth2Client = """
 mutation DeleteOAuth2Client($input: DeleteOAuth2ClientInput!) {
     deleteOauth2Client(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_exchangeOauth2CodeForToken = '''
+mutation_exchangeOauth2CodeForToken = """
 mutation ExchangeOAuth2CodeForToken($input: ExchangeOAuth2CodeForTokenInput!) {
     exchangeOauth2CodeForToken(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_exchangeOauth2CodeWithPkceForToken = '''
+mutation_exchangeOauth2CodeWithPkceForToken = """
 mutation ExchangeOAuth2CodeWithPKCEForToken(
     $input: ExchangeOAuth2CodeWithPKCEForTokenInput!
 ) {
@@ -593,27 +593,27 @@ mutation ExchangeOAuth2CodeWithPKCEForToken(
         err
     }
 }
-'''
+"""
 
-mutation_revokeOauth2Token = '''
+mutation_revokeOauth2Token = """
 mutation RevokeOAuth2Token($input: RevokeTokenInput!) {
     revokeOauth2Token(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_revokePersonalToken = '''
+mutation_revokePersonalToken = """
 mutation RevokePersonalToken($input: RevokeTokenInput!) {
     revokePersonalToken(input: $input) {
         ok
         err
     }
 }
-'''
+"""
 
-mutation_unauthorizeOauth2Client = '''
+mutation_unauthorizeOauth2Client = """
 mutation UnauthorizeOAuth2Client (
     $input: UnauthorizeOAuth2ClientInput!
 ) {
@@ -622,9 +622,9 @@ mutation UnauthorizeOAuth2Client (
         err
     }
 }
-'''
+"""
 
-mutation_updateGroup = f'''
+mutation_updateGroup = f"""
 mutation UpdateGroup($input: UpdateGroupInput!) {{
     updateGroup(input: $input) {{
         ok {{
@@ -633,9 +633,9 @@ mutation UpdateGroup($input: UpdateGroupInput!) {{
         err
     }}
 }}
-'''
+"""
 
-mutation_updateOauth2Client = f'''
+mutation_updateOauth2Client = f"""
 mutation UpdateOAuth2Client($input: UpdateOAuth2ClientInput!) {{
     updateOauth2Client(input: $input) {{
         ok {{
@@ -644,9 +644,9 @@ mutation UpdateOAuth2Client($input: UpdateOAuth2ClientInput!) {{
         err
     }}
 }}
-'''
+"""
 
-mutation_updateProject = f'''
+mutation_updateProject = f"""
 mutation UpdateProject($input: UpdateProjectInput!) {{
     updateProject(input: $input) {{
         ok {{
@@ -655,9 +655,9 @@ mutation UpdateProject($input: UpdateProjectInput!) {{
         err
     }}
 }}
-'''
+"""
 
-mutation_updateUser = f'''
+mutation_updateUser = f"""
 mutation UpdateUser($input: UpdateUserInput!) {{
     updateUser(input: $input) {{
         ok {{
@@ -666,4 +666,4 @@ mutation UpdateUser($input: UpdateUserInput!) {{
         err
     }}
 }}
-'''
+"""
