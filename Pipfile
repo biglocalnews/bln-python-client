@@ -21,6 +21,7 @@ sphinxcontrib-napoleon = "*"
 pytest = "*"
 pytest-vcr = "*"
 pytest-cov = "*"
+twine = "*"
 
 [requires]
 python_version = "3.9"
