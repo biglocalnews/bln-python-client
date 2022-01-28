@@ -16,7 +16,7 @@ from . import queries as q
 class Client:
     """Big Local News Python Client."""
 
-    def __init__(self, token, tier="prod"):
+    def __init__(self, token=None, tier="prod"):
         """Create a Big Local News Python Client.
 
         Args:
@@ -26,6 +26,10 @@ class Client:
         Returns:
             client: a Big Local News Python Client.
         """
+        if not token:
+            token = os.getenv("BLN_API_TOKEN")
+            if not token:
+                raise ValueError("No API token provided")
         self.token = token
         self.endpoint = {
             "local": "http://localhost:8080/graphql",
