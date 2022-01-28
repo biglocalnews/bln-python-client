@@ -10,6 +10,9 @@ xlrd = "*"
 
 [dev-packages]
 pre-commit = "*"
+flake8 = "*"
+flake8-docstrings = "*"
+flake8-bugbear = "*"
 
 [requires]
 python_version = "3.9"
