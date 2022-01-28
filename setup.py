@@ -15,7 +15,7 @@ setuptools.setup(
     name="bln",
     version="0.3.2",
     author="Big Local News",
-    description="Big Local News Python SDK",
+    description="Python client for the biglocalnews.org API",
     license="Apache 2.0 license",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
