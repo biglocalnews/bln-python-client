@@ -73,8 +73,8 @@ setuptools.setup(
     ],
     project_urls={
         "Maintainer": "https://github.com/biglocalnews",
-        "Source": "https://github.com/biglocalnews/sdk",
-        "Tracker": "https://github.com/biglocalnews/sdk/issues",
+        "Source": "https://github.com/biglocalnews/bln-python-client",
+        "Tracker": "https://github.com/biglocalnews/bln-python-client/issues",
     },
     test_suite="tests",
     tests_require=[
