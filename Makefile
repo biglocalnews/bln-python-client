@@ -79,7 +79,7 @@ test: ## run all tests
 # Docs
 #
 
-serve-docs: tally-sources ## start the documentation test server
+serve-docs: ## start the documentation test server
 	$(call banner,         📃 Serving docs 📃)
 	cd docs && $(PIPENV) make livehtml;
 

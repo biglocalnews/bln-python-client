@@ -21,6 +21,7 @@ Documentation
    :maxdepth: 1
 
    gettingstarted
+   releasing
    reference
 
 Links
