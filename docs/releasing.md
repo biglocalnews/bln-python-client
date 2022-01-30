@@ -12,7 +12,7 @@ Here's how it's done, step by step. The screenshots are from a different reposit
 
 ## 1. Go to the releases page
 
-The first step is to visit [our repository's homepage](https://github.com/biglocalnews/bln-python-client) and click on [the "releases" headline](https://github.com/biglocalnews/bln-python-clientreleases) in the right rail.
+The first step is to visit [our repository's homepage](https://github.com/biglocalnews/bln-python-client) and click on [the "releases" headline](https://github.com/biglocalnews/bln-python-client/releases) in the right rail.
 
 ![Release button](_static/releasing-releases-button.png)
 
