@@ -67,18 +67,18 @@ project = client.createProject(project_name, description=project_description)
 ```
 
 ### Get metadata for an existing project
-The client's `search_projects` method can be used to retrieve metadata for existing projects. It takes a lambda function that returns `True` or `False` based on whether or not the project metadata meets the search criteria.
-The `search_projects` method will return a list of project metadata for those projects matching the search query.
+
+Helper methods can assist you with selecting projects by name or id. It will return one and only one project.
 
 ```python
-# Search by name
-client.search_projects(lambda project: project['name'] == "Big Local News SDK Demo Project")
+client.get_project_by_name("Big Local News SDK Demo Project")
+client.get_project_by_id(project_id)
+```
 
-# Search by keyword in project description
-client.search_projects(lambda project: 'SDK' in project['description'])
+The client's `search_projects` method can be used to for more complex queries. It takes a lambda function that returns `True` or `False` based on whether or not the project metadata meets the search criteria. The `search_projects` method will return a list of project metadata for those projects matching the search query.
 
-# Search by project ID
-client.search_projects(lambda project: project['id'] == project_id)
+```python
+client.search_projects(lambda project: "SDK" in project["description"])
 ```
 
 ### Updating project metadata
@@ -113,7 +113,7 @@ The client has two different methods for file uploads - one for a single file an
 #### A single file
 
 ```python
-client.upload_file(project_id, './data/demo_a.csv')
+client.upload_file(project_id, "./data/demo_a.csv")
 ```
 
 #### Multiple files
@@ -128,18 +128,24 @@ client.upload_files(project_id, files_to_upload)
 
 ```python
 # Get the first project returned from a search
-project = client.search_projects(lambda project: project['id'] == project_id)[0]
+project = client.search_projects(lambda project: project["id"] == project_id)[0]
 
-project['files']
+project["files"]
 
-[{'createdAt': '2022-01-12T23:40:44.443000+00:00',
-    'name': 'demo_a.csv',
-    'tags': [],
-    'updatedAt': '2022-01-12T23:40:44.443000+00:00'},
-    {'createdAt': '2022-01-12T23:40:46.372000+00:00',
-    'name': 'demo_b.csv',
-    'tags': [],
-    'updatedAt': '2022-01-12T23:40:46.372000+00:00'}]
+[
+    {
+        "createdAt": "2022-01-12T23:40:44.443000+00:00",
+        "name": "demo_a.csv",
+        "tags": [],
+        "updatedAt": "2022-01-12T23:40:44.443000+00:00",
+    },
+    {
+        "createdAt": "2022-01-12T23:40:46.372000+00:00",
+        "name": "demo_b.csv",
+        "tags": [],
+        "updatedAt": "2022-01-12T23:40:46.372000+00:00",
+    },
+]
 ```
 
 ### Downloading a file
@@ -147,5 +153,5 @@ project['files']
 The client's `download_file` takes three arguments: project ID, filename and an optional output directory. If an output directory is not specified, the client will download to the current working directory.
 
 ```python
-client.download_file(project_id, 'demo_a.csv', output_dir="./data")
+client.download_file(project_id, "demo_a.csv", output_dir="./data")
 ```
