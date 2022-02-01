@@ -403,7 +403,8 @@ class Client:
         Args:
             name (str): The name of the project on biglocalnews.org
 
-        Returns: Dictionary with project metadata."""
+        Returns: Dictionary with project metadata.
+        """
         # Search all projects by name
         project_list = self.search_projects(lambda x: x["id"] == id)
 
@@ -424,7 +425,8 @@ class Client:
         Args:
             name (str): The name of the project on biglocalnews.org
 
-        Returns: Dictionary with project metadata."""
+        Returns: Dictionary with project metadata.
+        """
         # Search all projects by name
         project_list = self.search_projects(lambda x: x["name"] == name)
 
