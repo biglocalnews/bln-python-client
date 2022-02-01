@@ -397,6 +397,27 @@ class Client:
 
     # python SDK convenience functions
 
+    def get_project_by_id(self, id: str):
+        """Get the project with the provided id.
+
+        Args:
+            name (str): The name of the project on biglocalnews.org
+
+        Returns: Dictionary with project metadata."""
+        # Search all projects by name
+        project_list = self.search_projects(lambda x: x["id"] == id)
+
+        # If there's no results, throw an error
+        if len(project_list) == 0:
+            raise ValueError(f"No project with {id} id found")
+
+        # If there's more than one project, throw an error
+        if len(project_list) > 1:
+            raise ValueError(f"{len(project_list)} projects with {id} id found")
+
+        # Otherwise, return the one project found
+        return project_list[0]
+
     def get_project_by_name(self, name: str):
         """Get the project with the provided name.
 
