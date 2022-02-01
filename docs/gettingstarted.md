@@ -1,24 +1,5 @@
 # Getting started
 
-## Contents
-
-- [Setup](#Setup)
-  - [Installation](#Installation)
-  - [Getting an API Key](#Getting-an-API-Key)
-  - [Initializing the SDK client](#Initializing-the-SDK-client)
-- [Working with projects](#Working-with-projects)
-  - [Creating a project](#Creating-a-project)
-  - [Get metadata for an existing project](#Get-metadata-for-an-existing-project)
-  - [Updating project metadata](#Updating-project-metadata)
-  - [Deleting a project](#Deleting-a-project)
-- [Working with files](#Working-with-files)
-  - [Uploading](#Uploading)
-    - [A single file](#A-single-file)
-    - [Multiple files](#Multiple-files)
-  - [Uploading multiple files](#Uploading-multiple-files)
-  - [Viewing files in a project](#Viewing-files-in-a-project)
-  - [Downloading a file](#Downloading-a-file)
-
 ## Setup
 
 ### Installation
