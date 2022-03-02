@@ -556,9 +556,7 @@ mutation CreateTag($input: CreateTagInput!) {
 mutation_deleteFile = """
 mutation DeleteFile($input: FileURIInput!) {
     deleteFile(input: $input) {
-        ok {
-            name
-        }
+        ok
         err
     }
 }
