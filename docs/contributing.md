@@ -49,7 +49,6 @@ pipenv run pre-commit install
 
 ## Create a branch
 
-
 Next will we [create a branch](https://www.w3schools.com/git/git_branch.asp) in your local repository where you an work without disturbing the mainline of code.
 
 You can do this by running a line of code like the one below. You should substitute a branch that summarizes the work you're trying to do.
@@ -64,7 +63,7 @@ For instance, if you were trying to fix an upload bug, you might name it somethi
 git checkout-b upload-bug-fix
 ```
 
-## Perform you work.
+## Perform you work
 
 Now you do your thing. Make the necessary changes to the code until you get the job done.
 
