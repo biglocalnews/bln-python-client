@@ -83,9 +83,9 @@ Once you're happy with your work and the tests are passing, you should commit yo
 
 ```bash
 git commit -am "Describe your work here"
-git push -u origin your-branch-name
+git push origin your-branch-name
 ```
 
 ## Send a pull request
 
-The final step is to submit a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>) to the main respository, asking the maintainers to consider integrating your patch. GitHub has [a short guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) that can walk you through the process. You should tag your issue number in the request so that they linked in GitHub’s system.
+The final step is to submit a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>) to the main respository, asking the maintainers to consider integrating your patch. GitHub has [a short guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) that can walk you through the process. You should tag your issue number in the request so that they are linked in GitHub’s system.
