@@ -2,6 +2,11 @@
 
 How to release a new version of the [bln](https://pypi.org/project/bln/) module to the [Python Package Index](https://pypi.org/).
 
+```{contents} Sections
+  :depth: 1
+  :local:
+```
+
 ## How it works
 
 Our release process is automated as a [continuous deployment](https://en.wikipedia.org/wiki/Continuous_deployment) via the [GitHub Actions](https://github.com/features/actions) framework. The logic that governs the process is stored [in the `workflows` directory](https://github.com/biglocalnews/warn-scraper/blob/main/.github/workflows/continuous-deployment.yml).

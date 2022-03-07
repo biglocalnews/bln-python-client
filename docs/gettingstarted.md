@@ -1,5 +1,10 @@
 # Getting started
 
+```{contents} Sections
+  :depth: 1
+  :local:
+```
+
 ## Setup
 
 ### Installation
