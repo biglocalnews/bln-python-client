@@ -49,7 +49,7 @@ setuptools.setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     url="https://github.com/biglocalnews/sdk/py",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["tests",]),
     scripts=[
         "scripts/bln",
         "scripts/git-bln",
