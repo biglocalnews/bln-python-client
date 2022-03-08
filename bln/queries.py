@@ -35,9 +35,12 @@ contact
 """
 
 fragment_file = """
+id
 name
 createdAt
 updatedAt
+size
+md5
 tags {
     edges {
         node {
@@ -93,7 +96,11 @@ effectiveUserRoles {{
     }}
 }}
 files {{
-    {fragment_file}
+    edges {{
+        node {{
+            {fragment_file}
+        }}
+    }}
 }}
 """
 
@@ -549,9 +556,7 @@ mutation CreateTag($input: CreateTagInput!) {
 mutation_deleteFile = """
 mutation DeleteFile($input: FileURIInput!) {
     deleteFile(input: $input) {
-        ok {
-            name
-        }
+        ok
         err
     }
 }
