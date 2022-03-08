@@ -1,5 +1,6 @@
 """Big Local News Python Client."""
 import json
+import logging
 import os
 import platform
 import re
@@ -10,6 +11,8 @@ from multiprocessing import Pool, cpu_count
 import requests
 
 from . import queries as q
+
+logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -591,7 +594,7 @@ def _ungraphql(root):
 
 
 def _upload_file(endpoint, token, projectId, path):
-    print(f"uploading {path}")
+    logger.debug(f"uploading {path}")
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         return perr(f"invalid path: {path}")
@@ -647,7 +650,7 @@ def _put_string(string, uri):
 
 def _select_idx(options):
     for idx, option in enumerate(options):
-        print(f"{idx}: {option}")
+        logger.debug(f"{idx}: {option}")
     msg = "Select index: "
     idx = _to_idx(input(msg))
     while idx < 0 or idx >= len(options):
@@ -664,4 +667,4 @@ def _to_idx(s):
 
 def perr(msg, end="\n"):
     """Print error to stdout."""
-    print(msg, file=sys.stderr, end=end)
+    logger.error(msg, file=sys.stderr, end=end)
