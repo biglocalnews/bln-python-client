@@ -4,7 +4,6 @@ import logging
 import os
 import platform
 import re
-import sys
 from http.client import responses
 from multiprocessing import Pool, cpu_count
 
@@ -667,4 +666,4 @@ def _to_idx(s):
 
 def perr(msg, end="\n"):
     """Print error to stdout."""
-    logger.error(msg, file=sys.stderr, end=end)
+    logger.error(msg)
