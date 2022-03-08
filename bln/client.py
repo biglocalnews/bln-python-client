@@ -454,9 +454,9 @@ class Client:
         Returns:
             ouput_path: location where file was saved or None if error.
         """
-        output_dir = os.path.expanduser(output_dir)
         if not output_dir:
             output_dir = os.getcwd()
+        output_dir = os.path.expanduser(output_dir)
         uri = self.createFileDownloadUri(projectId, filename)
         if not uri:
             return
