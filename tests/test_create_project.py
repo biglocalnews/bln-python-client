@@ -1,7 +1,7 @@
 import os
 import random
 
-from bln.client import Client
+from bln import Client
 
 
 def test_create_project():

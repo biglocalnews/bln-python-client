@@ -1,3 +1,5 @@
+Python client for the biglocalnews.org API
+
 ## Links
 
 - Documentation: [bln-python-client.readthedocs.io](https://bln-python-client.readthedocs.io/)
