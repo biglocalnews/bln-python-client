@@ -1,6 +1,6 @@
 import os
 
-from bln.client import Client
+from bln import Client
 
 
 def test_files():

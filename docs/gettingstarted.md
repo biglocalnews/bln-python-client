@@ -34,7 +34,7 @@ export BLN_API_KEY = "<Paste your API Key here>"
 The client is what will handle calls to the Big Local News API. To set up it you must authorize the client using your API key.
 
 ```python
-from bln.client import Client
+from bln import Client
 
 client = Client()
 ```
