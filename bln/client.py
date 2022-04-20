@@ -10,6 +10,7 @@ from multiprocessing import Pool, cpu_count
 import requests
 
 from . import queries as q
+from .exceptions import APIException
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class Client:
         data, err = _gql(self.endpoint, self.token, query, variables)
         # network error
         if err:
-            return perr(err)
+            raise APIException(err)
         if isinstance(data, dict):
             for _k, v in data.items():
                 # unwrap single-item dict lists
@@ -59,7 +60,7 @@ class Client:
                 if isinstance(v, dict):
                     # mutation error
                     if "err" in v and v["err"]:
-                        return perr(v["err"])
+                        raise APIException(v["err"])
                     # mutation result
                     if "ok" in v:
                         return v["ok"]
@@ -70,7 +71,7 @@ class Client:
         """Execute a raw query directly with variables."""
         data, err = _gql(self.endpoint, self.token, query, variables or {}, ungraphql)
         if err:
-            return perr(err)
+            raise APIException(err)
         return data
 
     def everything(self):
@@ -462,7 +463,7 @@ class Client:
             return
         with requests.get(uri["uri"], stream=True) as r:
             if r.status_code != requests.codes.ok:
-                return perr(responses[r.status_code])
+                raise APIException(responses[r.status_code])
             output_path = os.path.join(output_dir, filename)
             with open(output_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
@@ -477,7 +478,7 @@ class Client:
         """
         path = os.path.expanduser(json_path)
         if not os.path.exists(path):
-            return perr(f"invalid json_path: {path}")
+            raise APIException(f"invalid json_path: {path}")
         with open(path) as f:
             data = json.load(f)
         if "groups" in data:
@@ -596,13 +597,13 @@ def _upload_file(endpoint, token, projectId, path):
     logger.debug(f"uploading {path}")
     path = os.path.expanduser(path)
     if not os.path.exists(path):
-        return perr(f"invalid path: {path}")
+        raise APIException(f"invalid path: {path}")
     uri, err = _get_upload_uri(endpoint, token, projectId, path)
     if err:
-        return perr(err)
+        raise APIException(err)
     err = _put(path, uri["uri"])
     if err:
-        return perr(err)
+        raise APIException(err)
 
 
 def _get_upload_uri(endpoint, token, projectId, path):
@@ -662,8 +663,3 @@ def _to_idx(s):
         return int(s)
     except Exception:
         return -1
-
-
-def perr(msg, end="\n"):
-    """Print error to stdout."""
-    logger.error(msg)
