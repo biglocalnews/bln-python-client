@@ -18,7 +18,7 @@ Your standard `pd` object now contains a set of custom methods for interacting w
 
 ## Reading data
 
-You can read in file from biglocalnews.org as a pandas dataframe using the `read_bln` function. It requires three inputs: 
+You can read in file from biglocalnews.org as a pandas [dataframe](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) using the `read_bln` function. It requires three inputs: 
 
 1. The unique identifier of the biglocalnews.org project where the file is stored
 2. The name of the file within the biglocalnews.org project
@@ -51,4 +51,16 @@ from bln.pandas import extensions
 project_id = "UHJvamVjdDpiZGM5NmU1MS1kMzBhLTRlYTctODY4Yi04ZGI4N2RjMzQ1ODI="
 file_name = "ia.csv"
 df = pd.read_bln(project_id, file_name)
+```
+
+Now you've got a dataframe to work with.
+
+```python
+df.head()
+                                   Company          Address Line 1             City  ...
+0                        SSP America, Inc.        5800 Fleur Drive       Des Moines  ...
+1              Premier Linen & Drycleaning     461 West 9th Street          Dubuque  ...
+2                        Caterpillar, Inc.      1003 Miller Street          Elkader  ...
+3  General Dynamics Information Technology  2400 Oakdale Boulevard       Coralville  ...
+4                            Alorica, Inc.    2829 Westown Parkway  West Des Moines  ...
 ```
