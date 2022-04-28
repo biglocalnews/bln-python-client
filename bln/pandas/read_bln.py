@@ -24,7 +24,7 @@ def read_bln(project_id, file_name, api_token=None, tier="prod", **kwargs):
         api_token = os.getenv("BLN_API_TOKEN")
         # Raise an error if it doesn't exist
         if not api_token:
-            raise ValueError("No API token provided")
+            raise ValueError("No API token provided. Either provide one as an inpurt or set the BLN_API_TOKEN environment variable.")
 
     # Figure out what pandas reader method to use based on the file
     if file_name.endswith(".csv"):
