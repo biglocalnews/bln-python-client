@@ -114,7 +114,6 @@ df = pd.read_csv("my-local-file.csv")
 
 project_id = "UHJvamVjdDpiZGM5NmU1MS1kMzBhLTRlYTctODY4Yi04ZGI4N2RjMzQ1ODI="
 file_name = "my-uploaded-file.csv"
-
 df.to_bln(project_id, file_name)
 ```
 
