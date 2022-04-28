@@ -65,7 +65,7 @@ df.head()
 4                            Alorica, Inc.    2829 Westown Parkway  West Des Moines  ...
 ```
 
-The `read_bln` function will also accept any of the standard configuration options offered by pandas reader functions, like [`read_csv`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html). Here's an example of using the `parse_dates` input.
+The `read_bln` function will also accept any of the standard configuration options offered by pandas reader functions, like [`read_csv`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html). Here's an example using the `parse_dates` input.
 
 ```python
 df = pd.read_bln(project_id, file_name, parse_dates=["Notice Date"])
