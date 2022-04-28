@@ -14,7 +14,7 @@ Then import the Big Local News extensions:
 from bln.pandas import extensions
 ```
 
-Your standard `pd` object now contains a set of custom methods for interacting with biglocalnews.org.
+Your standard `pd` object now contains a set of custom methods for interacting with biglocalnews.org. This is accomplished by [“monkey patching”](https://en.wikipedia.org/wiki/Monkey_patch) the pandas library.
 
 ## Reading data
 
