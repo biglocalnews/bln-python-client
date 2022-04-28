@@ -6,7 +6,6 @@ def register(pd):
     """
     from pandas.api.extensions import register_dataframe_accessor
 
-    # Import our tools
     from .read_bln import read_bln
     from .write_bln import BlnWriterAccessor
 
