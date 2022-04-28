@@ -55,4 +55,4 @@ class BlnWriterAccessor:
         client = Client(api_token, tier=tier)
 
         # Now upload that file to biglocalnews.org
-        client.upload_file(project_id, file_name)
+        client.upload_file(project_id, temp_path)
