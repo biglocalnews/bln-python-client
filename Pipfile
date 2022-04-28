@@ -21,6 +21,7 @@ pytest-vcr = "*"
 pytest-cov = "*"
 twine = "*"
 setuptools-scm = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.9"

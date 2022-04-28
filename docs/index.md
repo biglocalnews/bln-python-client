@@ -17,6 +17,7 @@ pipenv install bln
 :maxdepth: 1
 
 gettingstarted
+pandas
 contributing
 releasing
 reference

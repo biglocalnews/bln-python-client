@@ -80,6 +80,7 @@ setuptools.setup(
         "pytest",
         "pytest-vcr",
         "pytest-cov",
+        "pandas",
     ],
     setup_requires=["pytest-runner", "setuptools_scm"],
     use_scm_version={"version_scheme": version_scheme, "local_scheme": local_version},
