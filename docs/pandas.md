@@ -1,6 +1,6 @@
 # pandas extensions
 
-The `bln` package includes optional extensions to the [pandas](https://pandas.pydata.org/) data analysis library.
+The `bln` package includes extensions for reading and writing to biglocalnews.org with the [pandas](https://pandas.pydata.org/) data analysis library.
 
 They can be easily imported into your environment. First import pandas as usual.
 
@@ -8,7 +8,7 @@ They can be easily imported into your environment. First import pandas as usual.
 from pandas import pd
 ```
 
-Then import the Big Local News extensions and connect them with your `pd` module.
+Then import the Big Local News package and connect it with your `pd` module.
 
 ```python
 import bln
@@ -20,7 +20,7 @@ Your standard `pd` object now contains a set of custom methods for interacting w
 
 ## Reading data
 
-You can read in file from biglocalnews.org as a pandas [dataframe](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) using the `read_bln` function. It requires three inputs:
+You can read in files from biglocalnews.org as a pandas [dataframe](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html) using the `read_bln` function. It requires three inputs:
 
 1. The unique identifier of the biglocalnews.org project where the file is stored
 2. The name of the file within the biglocalnews.org project
