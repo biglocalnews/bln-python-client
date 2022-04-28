@@ -15,7 +15,7 @@ def read_bln(project_id, file_name, api_token=None, tier="prod", **kwargs):
         file_name (str): The name of the file within the biglocalnews.org project.
         api_token (str): An API key from biglocalnews.org with permission to read from the project. (Required but can be drawn from the env variable `BLN_API_TOKEN`)
         tier (str): The biglocalnews.org environment to access. (Required but default is 'prod', which will work for most users.)
-        **kwargs: Any other pandas options to be passed into the file reader
+        **kwargs: Any other pandas options to be passed into the file reader.
 
     Returns a pandas DataFrame.
     """
