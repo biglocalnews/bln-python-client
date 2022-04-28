@@ -24,4 +24,4 @@ def test_pandas_write():
     project_id = "UHJvamVjdDpiZGM5NmU1MS1kMzBhLTRlYTctODY4Yi04ZGI4N2RjMzQ1ODI="
     file_name = "test.csv"
     tier = os.getenv("BLN_TEST_ENV", "dev")
-    df.to_bln(project_id, file_name, tier=tier)
+    df.to_bln(project_id, file_name, tier=tier, index=False)
