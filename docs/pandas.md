@@ -18,7 +18,7 @@ Your standard `pd` object now contains a set of custom methods for interacting w
 
 ## Reading data
 
-You can read in file from biglocalnews.org as pandas dataframes using the `read_bln` function. It requires three input: 
+You can read in file from biglocalnews.org as a pandas dataframe using the `read_bln` function. It requires three inputs: 
 
 1. The unique identifier of the biglocalnews.org project where the file is stored
 2. The name of the file within the biglocalnews.org project
