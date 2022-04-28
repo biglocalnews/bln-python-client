@@ -21,3 +21,9 @@ read_bln
 
 .. automodule:: bln.pandas.extensions.read_bln
     :members:
+
+to_bln
+~~~~~~
+
+.. automodule:: bln.pandas.extensions.BlnWriterAccessor
+    :members:
