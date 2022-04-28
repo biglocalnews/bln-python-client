@@ -78,7 +78,7 @@ The `read_bln` function will also accept any of the standard configuration optio
 df = pd.read_bln(project_id, file_name, parse_dates=["Notice Date"])
 ```
 
-### Writing data
+## Writing data
 
 You can write a file to biglocalnews.org using our custom `to_bln` dataframe accessor. Like the `read_bln` method, it requires three input:
 
