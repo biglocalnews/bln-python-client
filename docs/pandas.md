@@ -48,7 +48,9 @@ Combine the entire example together and you can access the Iowa data file from t
 
 ```python
 import pandas as pd
-from bln.pandas import extensions
+import bln
+
+bln.pandas.register(pd)
 
 project_id = "UHJvamVjdDpiZGM5NmU1MS1kMzBhLTRlYTctODY4Yi04ZGI4N2RjMzQ1ODI="
 file_name = "ia.csv"
@@ -104,7 +106,9 @@ Combine the entire example together and you can upload a data file from your com
 
 ```python
 import pandas as pd
-from bln.pandas import extensions
+import bln
+
+bln.pandas.register(pd)
 
 df = pd.read_csv("my-local-file.csv")
 
