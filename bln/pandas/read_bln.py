@@ -1,14 +1,11 @@
 import os
 
-from .client import Client
+import pandas as pd
 
-try:
-    import pandas as pd
-except ImportError:
-    raise ImportError("pandas must be installed to take advantage of this module")
+from ..client import Client
 
 
-def read_bln(project_id, file_name, api_token=None, **kwargs):
+def read_bln(project_id, file_name, api_token=None, tier="prod", **kwargs):
     """Read in the provided file from biglocalnews.org and return a pandas dataframe.
 
     The filenames must end with .csv, .json, .xls, or .xlsx, which are mapped to the appropriate pandas reader function.
@@ -17,6 +14,7 @@ def read_bln(project_id, file_name, api_token=None, **kwargs):
         project_id (str): The unique identifier of the biglocalnews.org project where the file is stored. (Required)
         file_name (str): The name of the file within the biglocalnews.org project.
         api_token (str): An API key from biglocalnews.org with permission to read from the project. (Required but can be drawn from the env variable `BLN_API_TOKEN`)
+        tier (str): The biglocalnews.org environment to access. (Required but default is 'prod', which will work for most users.)
         **kwargs: Any other pandas options to be passed into the file reader
 
     Returns a pandas DataFrame.
@@ -41,7 +39,7 @@ def read_bln(project_id, file_name, api_token=None, **kwargs):
         )
 
     # Create an connection to the biglocalnews.org API
-    client = Client(api_token)
+    client = Client(api_token, tier=tier)
 
     # Get the url from biglocalnews.org
     url = client.createFileDownloadUri(project_id, file_name)
