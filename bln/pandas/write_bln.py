@@ -2,8 +2,6 @@ import os
 import pathlib
 import tempfile
 
-import pandas as pd
-
 from ..client import Client
 
 
@@ -19,16 +17,21 @@ class BlnWriterAccessor:
         tier (str): The biglocalnews.org environment to access. (Required but default is 'prod', which will work for most users.)
         **kwargs: Any other pandas options to be passed into the file writer,
     """
+
     def __init__(self, pandas_obj):
+        """Initialize accessor."""
         self._obj = pandas_obj
 
     def __call__(self, project_id, file_name, api_token=None, tier="prod", **kwargs):
+        """Write in attached dataframe to biglocalnews.org.."""
         # Pull the api token
         if not api_token:
             api_token = os.getenv("BLN_API_TOKEN")
             # Raise an error if it doesn't exist
             if not api_token:
-                raise ValueError("No API token provided. Either provide one as an inpurt or set the BLN_API_TOKEN environment variable.")
+                raise ValueError(
+                    "No API token provided. Either provide one as an inpurt or set the BLN_API_TOKEN environment variable."
+                )
 
         # Figure out what pandas reader method to use based on the file
         if file_name.endswith(".csv"):

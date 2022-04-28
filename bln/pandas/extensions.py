@@ -11,4 +11,4 @@ from .write_bln import BlnWriterAccessor
 
 # Monkeypatch pandas
 pd.read_bln = read_bln
-register_dataframe_accessor('to_bln')(BlnWriterAccessor)
+register_dataframe_accessor("to_bln")(BlnWriterAccessor)
