@@ -8,7 +8,7 @@ They can be easily imported into your environment. First import pandas as usual.
 from pandas import pd
 ```
 
-Then:
+Then import the Big Local News extensions:
 
 ```python
 from bln.pandas import extensions
