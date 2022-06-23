@@ -98,18 +98,6 @@ class Client:
         """Return the current user's personal tokens."""
         return self._gql(q.query_personalTokens)
 
-    def oauth2Codes(self):
-        """Return the current user's OAuth2 codes (authorized plugins)."""
-        return self._gql(q.query_oauth2Codes)
-
-    def oauth2Tokens(self):
-        """Return the current user's OAuth2 tokens (authorized plugins)."""
-        return self._gql(q.query_oauth2Tokens)
-
-    def oauth2Clients(self):
-        """Return the current user's owned OAuth2 clients (plugins)."""
-        return self._gql(q.query_oauth2Clients)
-
     def userNames(self):
         """Return a list of the user names on the platform."""
         return self._gql(q.query_userNames)
@@ -121,18 +109,6 @@ class Client:
     def openProjects(self):
         """Return a list of open projects."""
         return self._gql(q.query_openProjects)
-
-    def oauth2ClientsPublic(self):
-        """Return a list of Public OAuth2 Clients, i.e. plugins."""
-        return self._gql(q.query_oauth2ClientsPublic)
-
-    def authorizeOauth2Client(self, id, state):
-        """Authorize an OAuth2 client by id with state."""
-        return self._gql(q.mutation_authorizeOauth2Client, locals())
-
-    def authorizeWithPkceOauth2Client(self, id, state, codeChallenge):
-        """Authorize an OAuth2 client by id with state and code challenge."""
-        return self._gql(q.mutation_authorizeWithPkceOauth2Client, locals())
 
     def createFileDownloadUri(self, projectId, fileName):
         """Create a file download uri with a projectId and fileName."""
@@ -166,37 +142,6 @@ class Client:
         """
         variables = {k: v for k, v in locals().items() if v}
         return self._gql(q.mutation_createGroup, variables)
-
-    def createOauth2Client(
-        self,
-        name,
-        description,
-        redirectUris,
-        contact=None,
-        contactMethod=None,
-        scopes=None,
-        pkceRequired=False,
-    ):
-        """Create an OAuth2 Client (plugin).
-
-        Args:
-            name: Client name; must be unique.
-            description: Plugin description
-            redirectUris: Where to redirect user to for authorization.
-            contact: A phone number with format "+X (XXX) XXX-XXXX" or email;
-                defaults to author's contact value.
-            contactMethod: PHONE or EMAIL; defaults to author's contact method.
-            scopes: {project,group,user}_{read,write} -- user_write and
-                group_write are not allowed for clients; defaults to
-                [user_read, project_read, project_write].
-            pkceRequired: Whether to use PKCE. Required for mobile/SPAs;
-                defaults to False.
-
-        Returns:
-            client: the resulting client or None if error.
-        """
-        variables = {k: v for k, v in locals().items() if v}
-        return self._gql(q.mutation_createOauth2Client, variables)
 
     def createPersonalToken(self):
         """Create a personal token."""
@@ -274,29 +219,9 @@ class Client:
         """Delete project `projectId`."""
         return self._gql(q.mutation_deleteProject, locals())
 
-    def deleteOauth2Client(self, id):
-        """Delete OAuth2 Client with id `id`."""
-        return self._gql(q.mutation_deleteOauth2Client, locals())
-
-    def exchangeOauth2CodeForToken(self, code):
-        """Exchange an OAuth2 code for a token."""
-        return self._gql(q.mutation_exchangeOauth2CodeForToken, locals())
-
-    def exchangeOauth2CodeWithPkceForToken(self, code, codeVerifier):
-        """Exchange an OAuth2 code and code verifier for a token."""
-        return self._gql(q.mutation_exchangeOauth2CodeForToken, locals())
-
-    def revokeOauth2Token(self, token):
-        """Revoke an OAuth2 token (used by clients)."""
-        return self._gql(q.mutation_revokeOauth2Token, locals())
-
     def revokePersonalTokens(self, token):
         """Revoke a Personal Tokens."""
         return self._gql(q.mutation_revokePersonalToken, locals())
-
-    def unauthorizeOauth2Client(self, id):
-        """Unauthorize an OAuth2 client by id."""
-        return self._gql(q.mutation_unauthorizeOauth2Client, locals())
 
     def updateGroup(
         self,
@@ -322,21 +247,6 @@ class Client:
         """
         variables = {k: v for k, v in locals().items() if v}
         return self._gql(q.mutation_updateGroup, variables)
-
-    def updateOauth2Client(
-        self,
-        id,
-        name=None,
-        description=None,
-        redirectUris=None,
-        contact=None,
-        contactMethod=None,
-        scopes=None,
-        pkceRequired=False,
-    ):
-        """Update an OAuth2 Client (plugin)."""
-        variables = {k: v for k, v in locals().items() if v}
-        return self._gql(q.mutation_updateOauth2Client, variables)
 
     def updateProject(
         self,
@@ -374,31 +284,6 @@ class Client:
         variables = {k: v for k, v in locals().items() if k != "files" and v}
         self.upload_files(id, files or [])
         return self._gql(q.mutation_updateProject, variables)
-
-    def updateUser(
-        self,
-        id,
-        name=None,
-        displayName=None,
-        contact=None,
-        contactMethod=None,
-    ):
-        """Update a user.
-
-        Args:
-            id: id of user to update.
-            name: a valid user name.
-            displayName: display name of user.
-            contact: a phone number with format "+X (XXX) XXX-XXXX" or email.
-            contactMethod: PHONE or EMAIL.
-
-        Returns:
-            user: the resulting user or None if error.
-        """
-        variables = {k: v for k, v in locals().items() if v}
-        return self._gql(q.mutation_updateUser, variables)
-
-    # python SDK convenience functions
 
     def get_project_by_id(self, id: str):
         """Get the project with the provided id.
