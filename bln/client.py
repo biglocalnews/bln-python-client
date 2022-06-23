@@ -34,7 +34,7 @@ class Client:
                 raise ValueError("No API token provided")
         self.token = token
         self.endpoint = {
-            "local": "http://localhost:8080/graphql",
+            "local": "https://local-api.biglocalnews.org/graphql",
             "dev": "https://dev-api.biglocalnews.org/graphql",
             "prod": "https://api.biglocalnews.org/graphql",
         }[tier]
