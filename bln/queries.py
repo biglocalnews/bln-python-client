@@ -1,7 +1,7 @@
 # FRAGMENTS
 fragment_user = """
 id
-name
+username
 displayName
 contactMethod
 contact
