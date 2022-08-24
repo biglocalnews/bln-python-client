@@ -1,7 +1,7 @@
 # FRAGMENTS
 fragment_user = """
 id
-name
+username
 displayName
 contactMethod
 contact
@@ -104,52 +104,6 @@ files {{
 }}
 """
 
-fragment_oauth2_client_public = f"""
-id
-name
-contactMethod
-contact
-description
-scopes
-author {{
-    {fragment_user}
-}}
-"""
-
-fragment_oauth2_client_private = f"""
-{fragment_oauth2_client_public}
-secret
-pkceRequired
-scopes
-redirectUris
-defaultRedirectUri
-oauth2Codes {{
-    edges {{
-        node {{
-            id
-            code
-            challenge
-            scopes
-            user {{
-                {fragment_user}
-            }}
-        }}
-    }}
-}}
-oauth2Tokens {{
-    edges {{
-        node {{
-            id
-            token
-            scopes
-            user {{
-                {fragment_user}
-            }}
-        }}
-    }}
-}}
-"""
-
 # QUERIES
 
 query_everything = f"""
@@ -197,38 +151,6 @@ query {{
                 }}
             }}
         }}
-        oauth2Codes {{
-            edges {{
-                node {{
-                    id
-                    code
-                    expiresAt
-                    scopes
-                    client {{
-                        {fragment_oauth2_client_public}
-                    }}
-                }}
-            }}
-        }}
-        oauth2Tokens {{
-            edges {{
-                node {{
-                    id
-                    token
-                    scopes
-                    client {{
-                        {fragment_oauth2_client_public}
-                    }}
-                }}
-            }}
-        }}
-        oauth2Clients {{
-            edges {{
-                node {{
-                    {fragment_oauth2_client_private}
-                }}
-            }}
-        }}
     }}
 }}
 """
@@ -255,26 +177,6 @@ query Node($id: ID!) {{
     node(id: $id) {{
         ... on Project {{
             {fragment_project}
-        }}
-    }}
-}}
-"""
-
-query_oauth2Client = f"""
-query Node($id: ID!) {{
-    node(id: $id) {{
-        ... on OAuth2Client {{
-            {fragment_oauth2_client_private}
-        }}
-    }}
-}}
-"""
-
-query_oauth2ClientPublic = f"""
-query Node($id: ID!) {{
-    node(id: $id) {{
-        ... on OAuth2Client {{
-            {fragment_oauth2_client_public}
         }}
     }}
 }}
@@ -353,62 +255,6 @@ query {
 }
 """
 
-query_oauth2Codes = f"""
-query {{
-    user {{
-        id
-        oauth2Codes {{
-            edges {{
-                node {{
-                    id
-                    code
-                    expiresAt
-                    scopes
-                    client {{
-                        {fragment_oauth2_client_public}
-                    }}
-                }}
-            }}
-        }}
-    }}
-}}
-"""
-
-query_oauth2Tokens = f"""
-query {{
-    user {{
-        id
-        oauth2Tokens {{
-            edges {{
-                node {{
-                    id
-                    token
-                    scopes
-                    client {{
-                        {fragment_oauth2_client_public}
-                    }}
-                }}
-            }}
-        }}
-    }}
-}}
-"""
-
-query_oauth2Clients = f"""
-query {{
-    user {{
-        id
-        oauth2Clients {{
-            edges {{
-                node {{
-                    {fragment_oauth2_client_private}
-                }}
-            }}
-        }}
-    }}
-}}
-"""
-
 query_userNames = """
 query {
     userNames
@@ -433,35 +279,7 @@ query {{
 }}
 """
 
-query_oauth2ClientsPublic = f"""
-query {{
-    oauth2Clients {{
-        {fragment_oauth2_client_public}
-    }}
-}}
-"""
-
 # MUTATIONS
-
-mutation_authorizeOauth2Client = """
-mutation AuthorizeOAuth2Client($input: AuthorizeOAuth2ClientInput!) {
-    authorizeOauth2Client(input: $input) {
-        ok
-        err
-    }
-}
-"""
-
-mutation_authorizeWithPkceOauth2Client = """
-mutation AuthorizeWithPKCEOAuth2Client(
-    $input: AuthorizeWithPKCEOAuth2ClientInput!
-) {
-    authorizeWithPkceOauth2Client(input: $input) {
-        ok
-        err
-    }
-}
-"""
 
 mutation_createFileDownloadUri = """
 mutation CreateFileDownloadURI($input: FileURIInput!) {
@@ -494,30 +312,6 @@ mutation CreateGroup($input: CreateGroupInput!) {{
     createGroup(input: $input) {{
         ok {{
             {fragment_group}
-        }}
-        err
-    }}
-}}
-"""
-
-mutation_createNewOauth2ClientSecret = f"""
-mutation CreateNewOAuth2ClientSecret(
-    $input: CreateNewOAuth2ClientSecretInput!
-) {{
-    createNewOauth2ClientSecret(input: $input) {{
-        ok {{
-            {fragment_oauth2_client_private}
-        }}
-        err
-    }}
-}}
-"""
-
-mutation_createOauth2Client = f"""
-mutation CreateOAuth2Client($input: CreateOAuth2ClientInput!) {{
-    createOauth2Client(input: $input) {{
-        ok {{
-            {fragment_oauth2_client_private}
         }}
         err
     }}
@@ -571,58 +365,9 @@ mutation DeleteProject($input: DeleteProjectInput!) {
 }
 """
 
-mutation_deleteOauth2Client = """
-mutation DeleteOAuth2Client($input: DeleteOAuth2ClientInput!) {
-    deleteOauth2Client(input: $input) {
-        ok
-        err
-    }
-}
-"""
-
-mutation_exchangeOauth2CodeForToken = """
-mutation ExchangeOAuth2CodeForToken($input: ExchangeOAuth2CodeForTokenInput!) {
-    exchangeOauth2CodeForToken(input: $input) {
-        ok
-        err
-    }
-}
-"""
-
-mutation_exchangeOauth2CodeWithPkceForToken = """
-mutation ExchangeOAuth2CodeWithPKCEForToken(
-    $input: ExchangeOAuth2CodeWithPKCEForTokenInput!
-) {
-    exchangeOauth2CodeWithPkceForToken(input: $input) {
-        ok
-        err
-    }
-}
-"""
-
-mutation_revokeOauth2Token = """
-mutation RevokeOAuth2Token($input: RevokeTokenInput!) {
-    revokeOauth2Token(input: $input) {
-        ok
-        err
-    }
-}
-"""
-
 mutation_revokePersonalToken = """
 mutation RevokePersonalToken($input: RevokeTokenInput!) {
     revokePersonalToken(input: $input) {
-        ok
-        err
-    }
-}
-"""
-
-mutation_unauthorizeOauth2Client = """
-mutation UnauthorizeOAuth2Client (
-    $input: UnauthorizeOAuth2ClientInput!
-) {
-    unauthorizeOauth2Client(input: $input) {
         ok
         err
     }
@@ -640,33 +385,11 @@ mutation UpdateGroup($input: UpdateGroupInput!) {{
 }}
 """
 
-mutation_updateOauth2Client = f"""
-mutation UpdateOAuth2Client($input: UpdateOAuth2ClientInput!) {{
-    updateOauth2Client(input: $input) {{
-        ok {{
-            {fragment_oauth2_client_private}
-        }}
-        err
-    }}
-}}
-"""
-
 mutation_updateProject = f"""
 mutation UpdateProject($input: UpdateProjectInput!) {{
     updateProject(input: $input) {{
         ok {{
             {fragment_project}
-        }}
-        err
-    }}
-}}
-"""
-
-mutation_updateUser = f"""
-mutation UpdateUser($input: UpdateUserInput!) {{
-    updateUser(input: $input) {{
-        ok {{
-            {fragment_user}
         }}
         err
     }}
