@@ -294,12 +294,11 @@ class Client:
         Returns: Dictionary with project metadata.
         """
         project = self._gql(q.query_project, {'id': id})
-        
+
         if not project:
             raise ValueError(f"No project with `{id}` id found")
 
         return project
-
 
     def get_project_by_name(self, name: str):
         """Get the project with the provided name.
