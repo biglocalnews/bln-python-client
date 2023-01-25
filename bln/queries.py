@@ -102,6 +102,17 @@ files {{
         }}
     }}
 }}
+tags {{
+    edges {{
+        node {{
+            id
+            tag {{
+                id
+                name
+            }}
+        }}
+    }}
+}}
 """
 
 # QUERIES

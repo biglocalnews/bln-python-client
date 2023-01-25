@@ -26,7 +26,7 @@ API keys can be generated at https://biglocalnews.org/.
 5. Export the token to your environment
 
 ```bash
-export BLN_API_KEY = "<Paste your API Key here>"
+export BLN_API_TOKEN = "<Paste your API Key here>"
 ```
 
 ### Initializing the SDK client
