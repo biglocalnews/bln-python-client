@@ -24,6 +24,7 @@ pytest-cov = "*"
 twine = "*"
 setuptools-scm = "*"
 pandas = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.9"
