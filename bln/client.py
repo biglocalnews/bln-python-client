@@ -8,6 +8,7 @@ from http.client import responses
 from multiprocessing import Pool, cpu_count
 
 import requests
+from retry import retry
 
 from . import queries as q
 from .exceptions import APIException
@@ -293,7 +294,7 @@ class Client:
 
         Returns: Dictionary with project metadata.
         """
-        project = self._gql(q.query_project, {'id': id})
+        project = self._gql(q.query_project, {"id": id})
 
         if not project:
             raise ValueError(f"No project with `{id}` id found")
@@ -322,6 +323,7 @@ class Client:
         # Otherwise, return the one project found
         return project_list[0]
 
+    @retry(APIException, tries=3, delay=10, backoff=2)
     def download_file(self, projectId, filename, output_dir=None):
         """Download `filename` in project `projectId` to `output_dir`.
 
@@ -471,6 +473,7 @@ def _ungraphql(root):
     return root
 
 
+@retry(APIException, tries=3, delay=10, backoff=2)
 def _upload_file(endpoint, token, projectId, path):
     logger.debug(f"uploading {path}")
     path = os.path.expanduser(path)

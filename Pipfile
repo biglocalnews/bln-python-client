@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 requests = "*"
+retry = "*"
+types-retry = "*"
 
 [dev-packages]
 pre-commit = "*"
@@ -22,6 +24,7 @@ pytest-cov = "*"
 twine = "*"
 setuptools-scm = "*"
 pandas = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.9"
