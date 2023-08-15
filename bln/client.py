@@ -500,6 +500,8 @@ def _get_upload_uri(endpoint, token, projectId, path):
             }
         },
     )
+    if not data:
+        return None, "No data returned from _get_upload_url"
     if err:
         return None, err
     data = data["createFileUploadUri"]
