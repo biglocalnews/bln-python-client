@@ -71,7 +71,7 @@ jobs:
 
       - id: save
         name: Save artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-${{ github.run_number }}
           path: ./dist
@@ -84,13 +84,13 @@ jobs:
     if: startsWith(github.ref, 'refs/tags') == 0
     steps:
       - name: Set up Python 3.9
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
       - id: fetch
         name: Fetch artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build-${{ github.run_number }}
           path: ./dist
@@ -113,13 +113,13 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
       - name: Set up Python 3.9
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
       - id: fetch
         name: Fetch artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build-${{ github.run_number }}
           path: ./dist
