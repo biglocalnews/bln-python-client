@@ -301,7 +301,7 @@ class Client:
 
         return project
 
-    @retry(APIException, tries=3, delay=10, backoff=2)
+    @retry(APIException, tries=2, delay=10, backoff=2)
     def get_project_by_name(self, name: str):
         """Get the project with the provided name.
 
