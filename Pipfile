@@ -25,6 +25,7 @@ twine = "*"
 setuptools-scm = "*"
 pandas = "*"
 numpy = "*"
+tornado = "*"
 
 [requires]
 python_version = "3.9"
