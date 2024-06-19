@@ -1,4 +1,5 @@
 """Big Local News Python Client."""
+
 import json
 import logging
 import os
@@ -301,7 +302,7 @@ class Client:
 
         return project
 
-    @retry(APIException, tries=2, delay=10, backoff=2)
+    @retry(APIException, tries=4, delay=15, backoff=3)
     def get_project_by_name(self, name: str):
         """Get the project with the provided name.
 
@@ -324,7 +325,7 @@ class Client:
         # Otherwise, return the one project found
         return project_list[0]
 
-    @retry(APIException, tries=3, delay=10, backoff=2)
+    @retry(APIException, tries=4, delay=15, backoff=3)
     def download_file(self, projectId, filename, output_dir=None):
         """Download `filename` in project `projectId` to `output_dir`.
 
@@ -474,7 +475,7 @@ def _ungraphql(root):
     return root
 
 
-@retry(APIException, tries=3, delay=10, backoff=2)
+@retry(APIException, tries=4, delay=15, backoff=3)
 def _upload_file(endpoint, token, projectId, path):
     logger.debug(f"uploading {path}")
     path = os.path.expanduser(path)
