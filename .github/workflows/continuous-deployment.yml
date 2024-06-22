@@ -14,7 +14,7 @@ jobs:
 
       - id: install
         name: Install Python, pipenv and Pipfile packages
-        uses: palewire/install-python-pipenv-pipfile@21613f77896f538a9e83e8cf40ecd2c739a03549
+        uses: palewire/install-python-pipenv-pipfile@v4
         with:
           python-version: 3.9
 
@@ -34,7 +34,7 @@ jobs:
 
       - id: install
         name: Install Python, pipenv and Pipfile packages
-        uses: palewire/install-python-pipenv-pipfile@21613f77896f538a9e83e8cf40ecd2c739a03549
+        uses: palewire/install-python-pipenv-pipfile@v4
         with:
           python-version: ${{ matrix.python }}
 
@@ -54,7 +54,7 @@ jobs:
 
       - id: install
         name: Install Python, pipenv and Pipfile packages
-        uses: palewire/install-python-pipenv-pipfile@21613f77896f538a9e83e8cf40ecd2c739a03549
+        uses: palewire/install-python-pipenv-pipfile@v4
         with:
           python-version: 3.9
 
