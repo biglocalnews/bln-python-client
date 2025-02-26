@@ -5,7 +5,7 @@ The `bln` package includes extensions for reading and writing to biglocalnews.or
 They can be easily imported into your environment. First import pandas as usual.
 
 ```python
-from pandas import pd
+import pandas as pd
 ```
 
 Then import the Big Local News package and connect it with your `pd` module.
