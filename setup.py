@@ -69,7 +69,7 @@ setuptools.setup(
     python_requires=">=3.6",
     install_requires=[
         "requests",
-        "retry",
+        "retry2",
     ],
     project_urls={
         "Maintainer": "https://github.com/biglocalnews",

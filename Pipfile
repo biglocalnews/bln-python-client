@@ -5,8 +5,8 @@ name = "pypi"
 
 [packages]
 requests = "*"
-retry = "*"
 types-retry = "*"
+retry2 = "*"
 
 [dev-packages]
 pre-commit = "*"
