@@ -25,7 +25,7 @@ jobs:
   test-python:
     strategy:
       matrix:
-        python: ["3.11", "3.13",]
+        python: ["3.11", "3.12",]
     name: Test Python code
     runs-on: ubuntu-latest
     steps:
