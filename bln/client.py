@@ -41,6 +41,7 @@ class Client:
             "prod": "https://api.biglocalnews.org/graphql",
         }[tier]
 
+    @retry(APIException, tries=4, delay=15, backoff=3)
     def _gql(self, query, variables=None):
         variables = variables or {}
         # special case: node query, which doesn't use an *Input type
