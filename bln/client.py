@@ -349,7 +349,7 @@ class Client:
                 raise APIException(responses[r.status_code])
             output_path = os.path.join(output_dir, filename)
             with open(output_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
             return output_path
