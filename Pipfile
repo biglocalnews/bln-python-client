@@ -29,6 +29,7 @@ twine = "*"
 types-retry = "*"
 exceptiongroup = "*"
 tomli = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.14"
