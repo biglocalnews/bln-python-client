@@ -27,6 +27,8 @@ sphinxcontrib-napoleon = "*"
 tornado = "*"
 twine = "*"
 types-retry = "*"
+exceptiongroup = "*"
+tomli = "*"
 
 [requires]
 python_version = "3.14"
