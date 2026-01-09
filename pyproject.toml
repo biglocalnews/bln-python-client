@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bln"
+description = "Python client for the biglocalnews.org API"
+authors = [
+  { name = "Big Local News", email = "biglocalnews@stanford.edu" }
+]
+readme = "README.md"
+requires-python = ">= 3.10"
+keywords = ["Big Local News", "BLN", "BLN API", "Big Local News API"]
+license = "Apache-2.0"
+classifiers = [
+  "Programming Language :: Python :: 3"
+]
+dependencies = [
+  "requests",
+  "retry2",
+]
+dynamic = ["version"]
+
+[project.scripts]
+# warn-transformer = "warn_transformer.cli:cli"
+
+[project.urls]
+"Documentation" = "https://bln-python-client.readthedocs.io"
+"Maintainer" = "https://github.com/biglocalnews"
+"Source" = "https://github.com/biglocalnews/bln-python-client"
+"Tracker" = "https://github.com/biglocalnews/bln-python-client/issues"
+
+[tool.setuptools_scm]
+
+# ... other project metadata fields as listed in:
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
