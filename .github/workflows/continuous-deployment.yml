@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - id: install
         name: Install Python, pipenv and Pipfile packages
         uses: palewire/install-python-pipenv-pipfile@v4
         with:
-          python-version: 3.12
+          python-version: 3.14
 
       - id: lint
         name: Lint Python code
@@ -25,18 +25,24 @@ jobs:
   test-python:
     strategy:
       matrix:
-        python: ["3.12",]
+        python: ["3.10", "3.14"]
     name: Test Python code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - id: install
         name: Install Python, pipenv and Pipfile packages
         uses: palewire/install-python-pipenv-pipfile@v4
         with:
           python-version: ${{ matrix.python }}
+
+      - id: install-python-dependencies
+        name: Install Python dependencies again
+        run: |
+          pipenv install --dev
+        shell: bash
 
       - id: run
         name: Run tests
@@ -50,13 +56,13 @@ jobs:
     needs: [test-python]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - id: install
         name: Install Python, pipenv and Pipfile packages
         uses: palewire/install-python-pipenv-pipfile@v4
         with:
-          python-version: 3.12
+          python-version: 3.14
 
       - id: build
         name: Build release
@@ -71,7 +77,7 @@ jobs:
 
       - id: save
         name: Save artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-${{ github.run_number }}
           path: ./dist
@@ -83,14 +89,14 @@ jobs:
     needs: [test-build]
     if: startsWith(github.ref, 'refs/tags') == 0
     steps:
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
         with:
-          python-version: 3.12
+          python-version: 3.14
 
       - id: fetch
         name: Fetch artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_number }}
           path: ./dist
@@ -112,14 +118,14 @@ jobs:
     needs: [test-build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
         with:
-          python-version: 3.12
+          python-version: 3.14
 
       - id: fetch
         name: Fetch artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_number }}
           path: ./dist

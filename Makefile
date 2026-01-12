@@ -73,7 +73,7 @@ lint: ## run the linter
 
 test: ## run all tests
 	$(call banner,       🤖 Running tests 🤖)
-	@$(PYTHON) setup.py -q test
+	@$(PYTHON) -m pytest
 
 #
 # Docs
