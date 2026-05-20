@@ -27,6 +27,8 @@ tornado = "*"
 twine = "*"
 types-retry = "*"
 typing-extensions = "*"
+idna = "*"
+urllib3 = "*"
 
 [requires]
 python_version = "3.14"
