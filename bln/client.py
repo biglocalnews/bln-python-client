@@ -8,7 +8,7 @@ import re
 from http.client import responses
 from multiprocessing import Pool, cpu_count
 
-import requests
+import niquests as requests
 from retry import retry
 
 from . import queries as q

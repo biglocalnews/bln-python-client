@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
 retry2 = "*"
+niquests = "*"
 
 [dev-packages]
 black = "*"
