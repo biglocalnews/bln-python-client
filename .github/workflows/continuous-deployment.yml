@@ -12,22 +12,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # - id: install
-        # name: Install Python, pipenv and Pipfile packages
-        # uses: palewire/install-python-pipenv-pipfile@v4
-        # with:
-          # python-version: 3.14
-
       - id: install-pipenv
         name: Install pipenv
         run: pipx install pipenv
         shell: bash
 
-      - id: install-python3_14
-        name: Install Python 3.14
+      - id: install-python3_15
+        name: Install Python 3.15
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: '3.15'
           cache: 'pipenv'
 
       - id: install-python-dependencies
@@ -43,24 +37,12 @@ jobs:
   test-python:
     strategy:
       matrix:
-        python: ["3.14"]
+        python: ["3.15"]
     name: Test Python code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
-      # - id: install
-        # name: Install Python, pipenv and Pipfile packages
-        # uses: palewire/install-python-pipenv-pipfile@v4
-        # with:
-          # python-version: ${{ matrix.python }}
-
-      # - id: install-python-dependencies
-        # name: Install Python dependencies again
-        # run: |
-          # pipenv install --dev
-        # shell: bash
 
       - id: install-pipenv
         name: Install pipenv
@@ -94,22 +76,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # - id: install
-        # name: Install Python, pipenv and Pipfile packages
-        # uses: palewire/install-python-pipenv-pipfile@v4
-        # with:
-          # python-version: 3.14
-
       - id: install-pipenv
         name: Install pipenv
         run: pipx install pipenv
         shell: bash
 
-      - id: install-python3_14
-        name: Install Python 3.14
+      - id: install-python3_15
+        name: Install Python 3.15
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: '3.15'
           cache: 'pipenv'
 
       - id: install-python-dependencies
@@ -143,10 +119,10 @@ jobs:
     needs: [test-build]
     if: startsWith(github.ref, 'refs/tags') == 0
     steps:
-      - name: Set up Python 3.14
+      - name: Set up Python 3.15
         uses: actions/setup-python@v6
         with:
-          python-version: 3.14
+          python-version: 3.15
 
       - id: fetch
         name: Fetch artifact
@@ -172,10 +148,10 @@ jobs:
     needs: [test-build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     steps:
-      - name: Set up Python 3.14
+      - name: Set up Python 3.15
         uses: actions/setup-python@v6
         with:
-          python-version: 3.14
+          python-version: 3.15
 
       - id: fetch
         name: Fetch artifact
