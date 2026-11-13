@@ -478,20 +478,19 @@ def _ungraphql(root):
 
 
 def _build_useragent(projectId, actiontype):
-    versiontext = f"'bln-python-client': '{version('bln')}'".replace("|", "_")
-    systemtext = f"'system': '{platform.system()}'".replace("|", "_")
-    cputext = f"'machine': '{platform.machine()}'".replace("|", "_")
-    actiontext = f"'action': '{actiontype}'".replace("|", "_")
-    projecttext = f"'projectid': '{projectId}'".replace("|", "_")
+    holder = {}
+    holder["client"] = "bln-python-client"
+    holder["version"] = version("bln").replace("|", "_")
+    holder["system"] = platform.system().replace("|", "_")
+    holder["machine"] = platform.machine().replace("|", "_")
+    holder["operation"] = actiontype.replace("|", "_")
+    holder["projectid"] = projectId.replace("|", "_")
     blnserverflag = os.getenv("BLNSERVERID")
     if not blnserverflag:
-        blnservertext = "'blnserverid': 'False'"
+        holder["blnserver"] = False
     else:
-        blnservertext = f"'blnserverid': '{blnserverflag}'".replace("|", "_")
-    useragent = "|".join(
-        versiontext, systemtext, cputext, actiontext, projecttext, blnservertext
-    )
-    return useragent
+        holder["blnserver"] = blnserverflag.replace("|", "_")
+    return json.dumps(holder)
 
 
 @retry(APIException, tries=4, delay=15, backoff=3)
