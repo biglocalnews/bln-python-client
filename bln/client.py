@@ -6,6 +6,7 @@ import os
 import platform
 import re
 from http.client import responses
+from importlib.metadata import version
 from multiprocessing import Pool, cpu_count
 
 import niquests as requests
@@ -476,16 +477,34 @@ def _ungraphql(root):
     return root
 
 
+def _build_useragent(projectId, actiontype):
+    versiontext = f"'bln-python-client': '{version('bln')}'".replace("|", "_")
+    systemtext = f"'system': '{platform.system()}'".replace("|", "_")
+    cputext = f"'machine': '{platform.machine()}'".replace("|", "_")
+    actiontext = f"'action': '{actiontype}'".replace("|", "_")
+    projecttext = f"'projectid': '{projectId}'".replace("|", "_")
+    blnserverflag = os.getenv("BLNSERVERID")
+    if not blnserverflag:
+        blnservertext = "'blnserverid': 'False'"
+    else:
+        blnservertext = f"'blnserverid': '{blnserverflag}'".replace("|", "_")
+    useragent = "|".join(
+        versiontext, systemtext, cputext, actiontext, projecttext, blnservertext
+    )
+    return useragent
+
+
 @retry(APIException, tries=4, delay=15, backoff=3)
 def _upload_file(endpoint, token, projectId, path):
     logger.debug(f"uploading {path}")
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         raise APIException(f"invalid path: {path}")
+    useragent = _build_useragent(projectId, "upload")
     uri, err = _get_upload_uri(endpoint, token, projectId, path)
     if err:
         raise APIException(err)
-    err = _put(path, uri["uri"])
+    err = _put(path, uri["uri"], useragent)
     if err:
         raise APIException(err)
 
@@ -513,10 +532,11 @@ def _get_upload_uri(endpoint, token, projectId, path):
     return data["ok"], None
 
 
-def _put(path, uri):
+def _put(path, uri, useragent):
     headers = {
         "content-type": "application/octet-stream",
         "host": "storage.googleapis.com",
+        "user-agent": useragent,
     }
     with open(path, "rb") as f:
         res = requests.put(uri, data=f, headers=headers)
@@ -524,6 +544,7 @@ def _put(path, uri):
             return responses[res.status_code]
 
 
+""" Disabled 11/2026 by stucka -- nothing seems to use this.
 def _put_string(string, uri):
     headers = {
         "content-type": "application/octet-stream",
@@ -532,8 +553,9 @@ def _put_string(string, uri):
     res = requests.put(uri, data=string.encode("utf-8"), headers=headers)
     if res.status_code != requests.codes.ok:
         return responses[res.status_code]
+"""
 
-
+"""Disabled 11/2026 by stucka -- nothing seems to use this.
 def _select_idx(options):
     for idx, option in enumerate(options):
         logger.debug(f"{idx}: {option}")
@@ -542,6 +564,7 @@ def _select_idx(options):
     while idx < 0 or idx >= len(options):
         idx = _to_idx(input(msg))
     return idx
+"""
 
 
 def _to_idx(s):
