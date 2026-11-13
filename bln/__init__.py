@@ -5,6 +5,8 @@ from .client import Client
 
 __all__ = ("Client", "pandas")
 
+distribution_name = "bln"
+
 try:
     __version__ = version("bln")
 except PackageNotFoundError:
