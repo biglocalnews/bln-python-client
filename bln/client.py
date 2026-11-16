@@ -6,7 +6,7 @@ import os
 import platform
 import re
 from http.client import responses
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from multiprocessing import Pool, cpu_count
 
 import niquests as requests
@@ -480,9 +480,13 @@ def _ungraphql(root):
 
 
 def _build_useragent(projectId, actiontype):
+    try:
+        localversion = version("bln")
+    except PackageNotFoundError:
+        localversion = "0.0.0"
     holder = {}
     holder["client"] = "bln-python-client"
-    holder["version"] = version("bln").replace("|", "_")
+    holder["version"] = localversion.replace("|", "_")
     holder["system"] = platform.system().replace("|", "_")
     holder["machine"] = platform.machine().replace("|", "_")
     holder["operation"] = actiontype.replace("|", "_")
