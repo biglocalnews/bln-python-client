@@ -1,4 +1,4 @@
-"""Big Local News Python Client."""
+"""BiFg Local News Python Client."""
 
 import json
 import logging
@@ -345,12 +345,14 @@ class Client:
         uri = self.createFileDownloadUri(projectId, filename)
         if not uri:
             return
-        with requests.get(uri["uri"], stream=True) as r:
+        useragent = _build_useragent(projectId, "download")
+        headers = {"user-agent": useragent}
+        with requests.get(uri["uri"], stream=True, headers=headers) as r:
             if r.status_code != requests.codes.ok:
                 raise APIException(responses[r.status_code])
             output_path = os.path.join(output_dir, filename)
             with open(output_path, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                for chunk in r.iter_content(chunk_size=1024 * 1024 * 8):
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
             return output_path
